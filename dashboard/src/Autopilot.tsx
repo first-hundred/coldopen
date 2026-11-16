@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { PER_DAY_MAX, PER_DAY_MIN } from '../../src/autopilot/settings.ts'
 import { ApiError, type Autopilot, type AutopilotToday, api, type Format, send } from './api.ts'
 import { safeUrl } from './safe.ts'
-import { ErrorNote } from './ui.tsx'
+import { ErrorNote, useToast } from './ui.tsx'
 
 /**
  * Autopilot, on the Profile page: films a weekday for Network this week's companies, on the
@@ -42,6 +42,11 @@ export function AutopilotSection() {
       qc.setQueryData(['autopilot'], data)
       void qc.invalidateQueries({ queryKey: ['autopilot-today'] })
     },
+  })
+  const toast = useToast()
+  const test = useMutation({
+    mutationFn: (webhook: string) => send('POST', '/v1/autopilot/test', { webhook }),
+    onSuccess: () => toast({ text: 'Test message sent. Check Slack or Discord.' }),
   })
 
   const denied = q.error instanceof ApiError && q.error.status === 403
@@ -178,7 +183,20 @@ export function AutopilotSection() {
             placeholder="https://hooks.slack.com/services/…"
             onChange={(e) => set({ webhook: e.target.value })}
           />
-          <small>A Slack or Discord webhook gets a note after each run.</small>
+          <small>
+            A Slack or Discord webhook gets one message each morning: what’s ready, what needs a
+            look, and what’s due.
+          </small>
+          <div className="actions">
+            <button
+              type="button"
+              onClick={() => test.mutate(form.webhook?.trim() ?? '')}
+              disabled={!form.webhook?.trim() || test.isPending}
+            >
+              {test.isPending ? 'Sending…' : 'Send a test message'}
+            </button>
+          </div>
+          <ErrorNote error={test.error} lead="Couldn’t send a test message: " />
         </label>
 
         <ErrorNote error={save.error} lead="Couldn’t save Autopilot: " />

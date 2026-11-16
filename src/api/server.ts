@@ -12,9 +12,16 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import { z } from 'zod'
+import { digestOf, moreReadyMessage, TEST_MESSAGE } from '../autopilot/digest.ts'
 import { dayOf, isOn, pickToday } from '../autopilot/pick.ts'
 import { runAutopilotOnce } from '../autopilot/run.ts'
-import { AutopilotSchema, type AutopilotSettings, DEFAULT_SETTINGS } from '../autopilot/settings.ts'
+import {
+  AutopilotSchema,
+  type AutopilotSettings,
+  DEFAULT_SETTINGS,
+  WEBHOOK_RULE,
+  webhookOk,
+} from '../autopilot/settings.ts'
 import type { Config } from '../config.ts'
 import type { Sql } from '../db/index.ts'
 import { FilmInputSchema, type FilmResult } from '../film.ts'
@@ -126,7 +133,7 @@ import { attachment } from '../share/download.ts'
 import { gifEmbed } from '../share/embed.ts'
 import { sharePage, viewFromRun } from '../share/page.ts'
 import { filmViews, NO_VIEWS, pgViewStore, viewSummaries } from '../share/pg.ts'
-import { recordBeacon, type ViewSummary } from '../share/views.ts'
+import { notify, recordBeacon, type ViewSummary } from '../share/views.ts'
 import { type SlackClient, urlFromMention, verifySlackSignature } from '../slack.ts'
 import { registerHttpTracing } from '../tracing.ts'
 import {
@@ -1263,7 +1270,9 @@ export async function buildApi({
           and (created_at > now() - interval '120 days' or outreach is not null)`,
       sql<{ name: string; company: string }[]>`
         select name, company from connections where owner = ${owner} limit 30000`,
-      sql<{ host: string }[]>`select host from target_hides where owner = ${owner}`,
+      sql<{ host: string }[]>`
+        select host from target_hides
+        where owner = ${owner} and (until is null or until > now())`,
     ])
     const list = await targetsInSlices(
       {
@@ -1288,7 +1297,9 @@ export async function buildApi({
   const warmScores = async (owner: Owner) => {
     const [{ list }, hidden] = await Promise.all([
       targetsFor(owner),
-      sql<{ host: string }[]>`select host from target_hides where owner = ${owner}`,
+      sql<{ host: string }[]>`
+        select host from target_hides
+        where owner = ${owner} and (until is null or until > now())`,
     ])
     return {
       score: new Map(list.map((t) => [targetHost(t.site), t.score])),
@@ -1332,7 +1343,11 @@ export async function buildApi({
     },
   )
 
-  const SiteBody = z.object({ site: z.string().trim().min(3).max(300) })
+  const SiteBody = z.object({
+    site: z.string().trim().min(3).max(300),
+    /** days until the hide expires; omitted keeps it hidden until undone by hand, as before */
+    days: z.number().int().min(1).max(365).optional(),
+  })
   const siteHost = (site: string) => {
     const h = targetHost(site)
     return h.includes('.') ? h : ''
@@ -1348,15 +1363,18 @@ export async function buildApi({
       schema: {
         tags: ['jobs'],
         summary: '"Not for me": keep a company off Network this week and the warm sorts',
+        description:
+          'Permanent by default. `days` (1–365) hides it for that long instead, and it comes back on its own after: Ready to send\'s "Skip this company" uses 60.',
         body: SiteBody,
       },
     },
     async (req, reply) => {
       const host = siteHost(req.body.site)
       if (!host) return badSite(reply)
+      const until = req.body.days ? new Date(Date.now() + req.body.days * 86_400_000) : null
       await sql`
-        insert into target_hides (owner, host) values (${req.owner}, ${host})
-        on conflict (owner, host) do nothing`
+        insert into target_hides (owner, host, until) values (${req.owner}, ${host}, ${until})
+        on conflict (owner, host) do update set until = excluded.until`
       return { hidden: host }
     },
   )
@@ -2195,6 +2213,41 @@ export async function buildApi({
     },
   )
 
+  app.post(
+    '/v1/autopilot/test',
+    {
+      schema: {
+        tags: ['autopilot'],
+        summary: 'Send a test message to the Autopilot webhook',
+        description:
+          'Posts a short test line to the webhook in the request body, or your saved one when none is given. Best-effort, like the morning digest: a bad or unreachable webhook never shows as an error here, since posting to it never fails the run either.',
+        body: z
+          .object({
+            webhook: z
+              .string()
+              .trim()
+              .max(500)
+              .nullable()
+              .transform((w) => (w ? w : null))
+              .refine((w) => w === null || webhookOk(w), WEBHOOK_RULE)
+              .optional(),
+          })
+          .optional(),
+      },
+    },
+    async (req, reply) => {
+      const profiles = await seekerProfiles(req, reply)
+      if (!profiles) return reply
+      const webhook = req.body?.webhook ?? (await autopilotOf(req.owner)).webhook
+      if (!webhook)
+        return reply
+          .status(409)
+          .send({ error: { code: 'no_webhook', message: 'Save a webhook first' } })
+      await notify(webhook, TEST_MESSAGE)
+      return { sent: true }
+    },
+  )
+
   app.get(
     '/v1/autopilot/today',
     {
@@ -2244,6 +2297,63 @@ export async function buildApi({
   const reviewFlags = (review: Review) =>
     review.scenes.flatMap((s) => s.flags.map((f) => ({ code: f.code, text: f.text })))
 
+  /**
+   * Today's "ready to send" queue: Autopilot's films from the last 3 days that haven't been
+   * marked sent, skipped or failed, split by review. Shared with the morning digest, so what it
+   * counts as ready and needing a look always agrees with what Today shows.
+   */
+  const queueFor = async (owner: Owner) => {
+    const now = Date.now()
+    const day = dayOf(now)
+    const [settings, hidden, rows, madeToday, sentWeek] = await Promise.all([
+      autopilotOf(owner),
+      sql<{ host: string }[]>`
+        select host from target_hides
+        where owner = ${owner} and (until is null or until > now())`,
+      sql<FilmRow[]>`
+        select * from runs where agent = 'film' and owner = ${owner}
+          and origin = 'autopilot' and status = 'succeeded' and outreach is null
+          and created_at > now() - interval '3 days'
+        order by (created_at at time zone ${WEEK_ZONE})::date desc, created_at asc`,
+      sql<{ n: number }[]>`
+        select count(*)::int as n from runs
+        where agent = 'film' and owner = ${owner} and origin = 'autopilot'
+          and status not in ('failed', 'cancelled')
+          and (created_at at time zone ${WEEK_ZONE})::date = ${day.date}::date`,
+      sql<{ n: number }[]>`
+        select count(*)::int as n from runs
+        where agent = 'film' and owner = ${owner} and outreach is not null
+          and (outreach->>'sentAt')::timestamptz >= ${weekStart(now)}`,
+    ])
+    const hides = new Set(hidden.map((h) => h.host))
+    const live = rows.filter((r) => !hides.has(targetHost(r.output?.host ?? r.input.url)))
+    const ready: {
+      film: ReturnType<typeof filmDto>
+      who: unknown
+      homework: ReturnType<typeof latestHomework>
+    }[] = []
+    const needsLook: { film: ReturnType<typeof filmDto>; flags: ReturnType<typeof reviewFlags> }[] =
+      []
+    for (const r of live) {
+      const review = await reviewOf(r)
+      if (!review) continue
+      const film = filmDto(r, publicUrl)
+      if (review.ready) {
+        const who = (await reachFor(r, owner)).groups?.[0] ?? null
+        ready.push({ film, who, homework: latestHomework(r) })
+      } else {
+        needsLook.push({ film, flags: reviewFlags(review) })
+      }
+    }
+    return {
+      ready,
+      needsLook,
+      made: madeToday[0]?.n ?? 0,
+      perDay: settings.perDay,
+      sentThisWeek: sentWeek[0]?.n ?? 0,
+    }
+  }
+
   app.get(
     '/v1/autopilot/queue',
     {
@@ -2254,50 +2364,7 @@ export async function buildApi({
           "Films Autopilot made in the last 3 days that you haven't marked sent, skipped (\"Not for me\" on the company) or that failed to render. `ready` passed review, best-scoring company first; `needsLook` has something to check first, with the flags from GET /v1/films/:id/review. `made` and `perDay` are today's Autopilot progress. `sentThisWeek` counts films you've marked sent since Monday, a stand-in for LinkedIn's weekly connection-request limit: once it is high, lead with email instead.",
       },
     },
-    async (req) => {
-      const now = Date.now()
-      const day = dayOf(now)
-      const [settings, hidden, rows, madeToday, sentWeek] = await Promise.all([
-        autopilotOf(req.owner),
-        sql<{ host: string }[]>`select host from target_hides where owner = ${req.owner}`,
-        sql<FilmRow[]>`
-          select * from runs where agent = 'film' and owner = ${req.owner}
-            and origin = 'autopilot' and status = 'succeeded' and outreach is null
-            and created_at > now() - interval '3 days'
-          order by (created_at at time zone ${WEEK_ZONE})::date desc, created_at asc`,
-        sql<{ n: number }[]>`
-          select count(*)::int as n from runs
-          where agent = 'film' and owner = ${req.owner} and origin = 'autopilot'
-            and status not in ('failed', 'cancelled')
-            and (created_at at time zone ${WEEK_ZONE})::date = ${day.date}::date`,
-        sql<{ n: number }[]>`
-          select count(*)::int as n from runs
-          where agent = 'film' and owner = ${req.owner} and outreach is not null
-            and (outreach->>'sentAt')::timestamptz >= ${weekStart(now)}`,
-      ])
-      const hides = new Set(hidden.map((h) => h.host))
-      const live = rows.filter((r) => !hides.has(targetHost(r.output?.host ?? r.input.url)))
-      const ready: unknown[] = []
-      const needsLook: unknown[] = []
-      for (const r of live) {
-        const review = await reviewOf(r)
-        if (!review) continue
-        const film = filmDto(r, publicUrl)
-        if (review.ready) {
-          const who = (await reachFor(r, req.owner)).groups?.[0] ?? null
-          ready.push({ film, who, homework: latestHomework(r) })
-        } else {
-          needsLook.push({ film, flags: reviewFlags(review) })
-        }
-      }
-      return {
-        ready,
-        needsLook,
-        made: madeToday[0]?.n ?? 0,
-        perDay: settings.perDay,
-        sentThisWeek: sentWeek[0]?.n ?? 0,
-      }
-    },
+    async (req) => queueFor(req.owner),
   )
 
   app.get(
@@ -2416,6 +2483,133 @@ export async function buildApi({
       targets: async (owner, profileId) => (await targetsFor(owner, profileId)).list,
       kick,
     })
+  })
+
+  /** sent films due a follow-up today, for the morning digest (GET /v1/followups does the full job) */
+  const followUpsDueCount = async (owner: Owner): Promise<number> => {
+    const rows = await sql<FilmRow[]>`
+      select * from runs where agent = 'film' and owner = ${owner} and status = 'succeeded'
+        and outreach->>'status' = 'sent' order by id desc limit 500`
+    if (!rows.length) return 0
+    const now = Date.now()
+    const seen = await viewSummaries(
+      sql,
+      rows.map((r) => r.id),
+    )
+    return rows.filter(
+      (r) => nextStep(r.outreach, now, watchedFrom(seen.get(r.id)), waitsOf(r))?.due,
+    ).length
+  }
+
+  /** warm-lead touches due today, for the morning digest (GET /v1/warm does the full job) */
+  const warmDueCount = async (owner: Owner): Promise<number> => {
+    const rows = await sql<FilmRow[]>`
+      select * from runs where agent = 'film' and owner = ${owner} and status = 'succeeded'
+        and outreach->>'status' in ('replied', 'interview') order by id desc limit 500`
+    const warm = rows.filter((r) => isWarm(warmFilm(r)))
+    if (!warm.length) return 0
+    const now = Date.now()
+    const [touches, jobs] = await Promise.all([
+      touchesOf(
+        owner,
+        warm.map((r) => r.id),
+      ),
+      warmJobs(owner, warm),
+    ])
+    return warm.filter((r) => nextTouch(warmFilm(r), touches.get(r.id) ?? [], jobs, now)?.due)
+      .length
+  }
+
+  /** a made film's status and failure reason, if any, by id */
+  const FINISHED_STATUSES = new Set(['succeeded', 'failed', 'cancelled'])
+
+  /**
+   * The morning message: once the first 10 of today's Autopilot films (or all of them, if
+   * fewer) have finished or failed, posts what's ready, what needs a look, and what's due
+   * elsewhere (follow-ups, warm leads); once the rest finish too, a short second line. Checked
+   * from a GitHub Actions ping (.github/workflows/keep-awake.yml) every 10 minutes: the
+   * simplest trigger that outlives both a restart and autopilot.yml's own polling, which stops
+   * as soon as every pick for the day has been tried, often well before the films finish
+   * rendering. Each message posts once: autopilot_runs.digest_at / digest2_at record it, so a
+   * re-check (the next ping, or a retried run) never posts either one twice.
+   */
+  const checkDigest = async (owner: Owner): Promise<void> => {
+    const settings = await autopilotOf(owner)
+    if (!settings.webhook) return
+    const day = dayOf(Date.now())
+    const [row] = await sql<
+      {
+        made: { id: string; site: string; company: string }[] | null
+        digestAt: Date | null
+        digest2At: Date | null
+      }[]
+    >`
+      select made, digest_at, digest2_at from autopilot_runs
+      where owner = ${owner} and day = ${day.date}::date`
+    if (!row) return
+    const made = row.made ?? []
+    const ids = made.map((m) => m.id)
+    const statuses = ids.length
+      ? await sql<{ id: string; status: string; error: string | null }[]>`
+          select id, status, error from runs where id = any(${ids})`
+      : []
+    const statusOf = new Map(statuses.map((s) => [s.id, s]))
+    const finished = (id: string) => FINISHED_STATUSES.has(statusOf.get(id)?.status ?? '')
+    const batch1 = made.slice(0, 10)
+    const batch2 = made.slice(10)
+    const base = publicUrl.replace(/\/$/, '')
+
+    if (!row.digestAt && batch1.every((m) => finished(m.id))) {
+      const [queue, followUps, warm] = await Promise.all([
+        queueFor(owner),
+        followUpsDueCount(owner),
+        warmDueCount(owner),
+      ])
+      const failed = made
+        .filter((m) => statusOf.get(m.id)?.status === 'failed')
+        .map((m) => ({ company: m.company, reason: statusOf.get(m.id)?.error ?? 'it failed' }))
+      const d = digestOf({
+        ready: queue.ready.map((r) => r.film.company ?? r.film.host ?? r.film.url),
+        needsLook: queue.needsLook.length,
+        followUps,
+        warm,
+        failed,
+        publicUrl: base,
+      })
+      if (d) await notify(settings.webhook, d.text)
+      await sql`
+        update autopilot_runs set digest_at = now() where owner = ${owner} and day = ${day.date}::date`
+    }
+
+    if (row.digestAt && !row.digest2At && batch2.length && batch2.every((m) => finished(m.id))) {
+      const queue = await queueFor(owner)
+      const batch2Ids = new Set(batch2.map((m) => m.id))
+      const moreReady = queue.ready.filter((r) => batch2Ids.has(r.film.id)).length
+      const msg = moreReadyMessage(moreReady, base)
+      if (msg) await notify(settings.webhook, msg)
+      await sql`
+        update autopilot_runs set digest2_at = now() where owner = ${owner} and day = ${day.date}::date`
+    }
+  }
+
+  app.post('/internal/autopilot/digest', { schema: { hide: true } }, async (req, reply) => {
+    const h = req.headers.authorization ?? ''
+    const t = h.startsWith('Bearer ') ? h.slice(7) : ''
+    if (!dispatchToken || !t || !timingSafeEqual(dispatchToken, digest(t)))
+      return reply
+        .status(401)
+        .send({ error: { code: 'unauthorized', message: 'the dispatch token is needed' } })
+    const owners = await sql<
+      { owner: string }[]
+    >`select owner from autopilot where webhook is not null`
+    for (const o of owners) {
+      try {
+        await checkDigest(o.owner as Owner)
+      } catch (err) {
+        app.log.error({ err }, 'autopilot digest check failed')
+      }
+    }
+    return { checked: owners.length }
   })
 
   app.get(

@@ -146,8 +146,9 @@ function ReadyCard({
     mutationFn: () => send('POST', '/v1/targets/unhide', { site: film.host ?? film.url }),
     onSettled: refresh,
   })
+  // 60 days: long enough that a one-off "no thanks" sticks, short enough it isn't forever
   const skip = useMutation({
-    mutationFn: () => send('POST', '/v1/targets/hide', { site: film.host ?? film.url }),
+    mutationFn: () => send('POST', '/v1/targets/hide', { site: film.host ?? film.url, days: 60 }),
     onMutate: drop,
     onSuccess: () =>
       toast({

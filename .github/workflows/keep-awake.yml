@@ -3,6 +3,11 @@ name: Keep awake
 # Render's free plan sleeps the app after 15 idle minutes, and the next visitor waits ~50 seconds
 # for it to wake. A ping every 10 minutes keeps it ready; the free plan's 750 hours a month cover
 # one service running all month.
+#
+# Also the Autopilot morning digest's trigger: every 10 minutes, every day, outliving both an
+# app restart and autopilot.yml's own polling (which stops once every pick for the day has been
+# tried, often well before the films finish rendering). Needs the repository secret
+# RENDER_DISPATCH_TOKEN, the same value as the app's.
 on:
   workflow_dispatch:
   schedule:
@@ -14,11 +19,19 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    env:
+      APP: https://coldopen-nk8o.onrender.com
+      TOKEN: ${{ secrets.RENDER_DISPATCH_TOKEN }}
     steps:
       - name: Ping the hosted app
         run: |
           for i in 1 2 3; do
-            curl -fsS --max-time 90 https://coldopen-nk8o.onrender.com/healthz && exit 0
+            curl -fsS --max-time 90 "$APP/healthz" && exit 0
             sleep 20
           done
           echo "::warning::the hosted app didn't answer"
+      - name: Post any Autopilot digest that's due
+        if: ${{ env.TOKEN != '' }}
+        run: |
+          curl -fsS --max-time 60 -X POST -H "authorization: Bearer $TOKEN" "$APP/internal/autopilot/digest" \
+            || echo "::warning::the digest check didn't answer"

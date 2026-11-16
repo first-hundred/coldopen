@@ -1124,6 +1124,43 @@ describe('network this week', () => {
     })
     expect(sites((await week()).data)).toContain(second.site)
   })
+
+  it('brings back an expired timed hide, but keeps a permanent one hidden', async () => {
+    const first = await week()
+    const [a, b] = first.data as [Card, Card]
+
+    // "Skip this company" (Ready to send): a timed hide, 60 days
+    await app.inject({
+      method: 'POST',
+      url: '/v1/targets/hide',
+      headers: auth,
+      payload: { site: a.site, days: 60 },
+    })
+    expect(sites((await week()).data)).not.toContain(a.site)
+    const [hiddenA] = await sql<{ host: string; until: Date | null }[]>`
+      select host, until from target_hides where owner = 'team' order by created_at desc limit 1`
+    expect(hiddenA!.until).not.toBeNull()
+    // time passes: the hide expires on its own, with no unhide call
+    await sql`update target_hides set until = now() - interval '1 day' where owner = 'team' and host = ${hiddenA!.host}`
+
+    // "Not for me" (Network this week and Jobs): permanent, no `days`. Also a fresh hide, so
+    // Network this week's cached list (keyed on the hides table's count and newest row) is
+    // recomputed and picks up both: a's expiry and b's hide, in the same request.
+    await app.inject({
+      method: 'POST',
+      url: '/v1/targets/hide',
+      headers: auth,
+      payload: { site: b.site },
+    })
+    const [hiddenB] = await sql<{ until: Date | null }[]>`
+      select until from target_hides where owner = 'team' and host != ${hiddenA!.host}
+      order by created_at desc limit 1`
+    expect(hiddenB!.until).toBeNull()
+
+    const after = sites((await week()).data)
+    expect(after).toContain(a.site)
+    expect(after).not.toContain(b.site)
+  })
 })
 
 describe('"Write it again" on the hosted app', () => {
