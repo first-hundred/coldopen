@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import type { Storyboard } from '../script/storyboard.ts'
 import { type ShareView, viewFromStoryboard } from './page.ts'
 import type { ViewRow, ViewSummary } from './views.ts'
+import { type NotifyResult, notify, webhookBody } from './views.ts'
 
 /**
  * Talks to a share worker (share/worker.ts on Cloudflare) from the CLI: uploads finished film
@@ -87,6 +88,39 @@ export function newShareId(company: string): string {
  */
 export const SHARE_READ_MS = 4_000
 const SHARE_UPLOAD_MS = 60_000
+
+/**
+ * Posts a webhook notification through the share worker's relay (POST /relay/webhook) instead
+ * of straight from here: the hosted app's own outbound IP can be blocked by Discord's Cloudflare
+ * rules (a shared Render IP, blocked for everyone sharing it, not just coldopen), while the
+ * worker's traffic leaves from Cloudflare's own network and isn't caught by that. Falls back to
+ * posting directly when no share worker is configured (self-hosters). Never throws.
+ */
+export async function notifyThrough(
+  cfg: ShareConfig | null,
+  webhook: string | undefined,
+  text: string,
+): Promise<NotifyResult> {
+  if (!webhook) return { ok: false, status: null, body: '' }
+  if (!cfg) return notify(webhook, text)
+  try {
+    const r = await call<{ status: number | null; body: string }>(
+      cfg,
+      'POST',
+      '/relay/webhook',
+      JSON.stringify({ url: webhook, payload: webhookBody(text) }),
+      'application/json',
+      7_000,
+    )
+    return {
+      ok: r.status !== null && r.status >= 200 && r.status < 300,
+      status: r.status,
+      body: r.body,
+    }
+  } catch (err) {
+    return { ok: false, status: null, body: err instanceof Error ? err.message : 'relay error' }
+  }
+}
 
 async function call<T>(
   cfg: ShareConfig,

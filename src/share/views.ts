@@ -195,10 +195,16 @@ export interface NotifyResult {
   body: string
 }
 
+/** Slack reads "text", Discord reads "content"; sending both covers either one */
+export const webhookBody = (text: string) => ({ text, content: text })
+
+/** the User-Agent every webhook post carries; Discord's Cloudflare front rejects requests with none */
+export const WEBHOOK_USER_AGENT =
+  'coldopen-autopilot/1.0 (+https://github.com/tiwaker9404/coldopen)'
+
 /**
  * Posts to a Slack or Discord incoming webhook, and says what happened: never throws, so a
  * view still counts (and a digest check still marks itself done) even when the webhook is dead.
- * Discord's Cloudflare front rejects requests with no User-Agent, so one is always sent.
  */
 export async function notify(webhook: string | undefined, text: string): Promise<NotifyResult> {
   if (!webhook) return { ok: false, status: null, body: '' }
@@ -207,10 +213,9 @@ export async function notify(webhook: string | undefined, text: string): Promise
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'user-agent': 'coldopen-autopilot/1.0 (+https://github.com/tiwaker9404/coldopen)',
+        'user-agent': WEBHOOK_USER_AGENT,
       },
-      // Slack reads "text", Discord reads "content"
-      body: JSON.stringify({ text, content: text }),
+      body: JSON.stringify(webhookBody(text)),
       signal: AbortSignal.timeout(5000),
     })
     const body = await res.text().catch(() => '')
@@ -244,6 +249,10 @@ export interface RecordInput {
   now?: Date
   /** runs the notification after the response (Workers' waitUntil); awaited when absent */
   defer?: (p: Promise<unknown>) => void
+  /** how to post it; defaults to notify() (a direct POST). The hosted app, which can be
+   * blocked by Discord's Cloudflare rules on its own IP, passes one that posts through its
+   * share worker instead; the share worker itself (already on Cloudflare) needs none. */
+  notifier?: (webhook: string | undefined, text: string) => Promise<NotifyResult>
 }
 
 /**
@@ -271,7 +280,7 @@ export async function recordBeacon(i: RecordInput): Promise<ViewRow | null> {
   )
   await i.store.put(next)
   if (startedPlaying(prev, next) && i.webhook) {
-    const sent = notify(i.webhook, playMessage(i.company, next, i.link))
+    const sent = (i.notifier ?? notify)(i.webhook, playMessage(i.company, next, i.link))
     if (i.defer) i.defer(sent)
     else await sent
   }

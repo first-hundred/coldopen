@@ -385,6 +385,86 @@ describe('share worker', () => {
   })
 })
 
+describe('relay', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const relay = (body: unknown, headers: Record<string, string> = auth) =>
+    call('/relay/webhook', { method: 'POST', headers, body: JSON.stringify(body) })
+
+  it('needs the token', async () => {
+    const r = await relay(
+      { url: 'https://discord.com/api/webhooks/1/x', payload: { content: 'x' } },
+      {},
+    )
+    expect(r.status).toBe(401)
+  })
+
+  it('accepts only an https Slack or Discord webhook', async () => {
+    for (const url of [
+      'https://evil.com/hook',
+      'http://discord.com/api/webhooks/1/x',
+      'https://discord.com/channels/1/2',
+    ])
+      expect((await relay({ url, payload: { content: 'x' } })).status).toBe(400)
+  })
+
+  it('needs a payload object', async () => {
+    const r = await relay({ url: 'https://discord.com/api/webhooks/1/x' })
+    expect(r.status).toBe(400)
+  })
+
+  it('forwards the payload with a User-Agent, and reports what the webhook answered', async () => {
+    let seen: { url: string; headers: Record<string, string>; body: unknown } | undefined
+    vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+      seen = {
+        url,
+        headers: init.headers as Record<string, string>,
+        body: JSON.parse(String(init.body)),
+      }
+      return new Response('abcdef', { status: 403 })
+    })
+    const r = await relay({
+      url: 'https://discord.com/api/webhooks/1/x',
+      payload: { content: 'hi' },
+    })
+    expect(r.status).toBe(200)
+    expect(await r.json()).toEqual({ status: 403, body: 'abcdef' })
+    expect(seen?.url).toBe('https://discord.com/api/webhooks/1/x')
+    expect(seen?.body).toEqual({ content: 'hi' })
+    expect(seen?.headers['user-agent']).toBeTruthy()
+  })
+
+  it('never echoes the webhook url back, even when the answer is long', async () => {
+    vi.stubGlobal('fetch', async () => new Response('x'.repeat(500), { status: 500 }))
+    const r = await relay({
+      url: 'https://discord.com/api/webhooks/1/secret-token',
+      payload: { content: 'hi' },
+    })
+    const text = await r.text()
+    expect(text).not.toContain('secret-token')
+    expect(JSON.parse(text).body).toHaveLength(200)
+  })
+
+  it('reports a network failure instead of throwing', async () => {
+    vi.stubGlobal('fetch', async () => {
+      throw new Error('boom')
+    })
+    const r = await relay({
+      url: 'https://discord.com/api/webhooks/1/x',
+      payload: { content: 'hi' },
+    })
+    expect(r.status).toBe(200)
+    expect(await r.json()).toEqual({ status: null, body: 'boom' })
+  })
+
+  it('limits to 30 webhook posts a minute', async () => {
+    vi.stubGlobal('fetch', async () => new Response('ok', { status: 200 }))
+    const body = { url: 'https://discord.com/api/webhooks/1/x', payload: { content: 'hi' } }
+    for (let i = 0; i < 30; i++) expect((await relay(body)).status).toBe(200)
+    expect((await relay(body)).status).toBe(429)
+  })
+})
+
 function memoryR2(): R2 & {
   store: Map<string, { buf: ArrayBuffer; meta: Record<string, string> }>
 } {

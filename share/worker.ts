@@ -9,13 +9,23 @@
  *   DELETE /api/films/:id          take a link down                 }
  *   GET  /api/views                every film with its views        }
  *   GET  /api/films/:id/views      one film's sessions              }
+ *   POST /relay/webhook            relays a Slack/Discord webhook post for the hosted app,     }
+ *                                  whose own outbound IP (shared on Render) can be blocked by   }
+ *                                  Discord's Cloudflare rules; this worker's IP isn't           }
  *
  * Films live in Workers KV, views in D1. The page and the tracking rules are the same code
  * the API server uses (src/share), so a film looks and counts the same wherever it's hosted.
  */
+import { webhookOk } from '../src/autopilot/settings.ts'
 import { attachment } from '../src/share/download.ts'
 import { cardOf, creatorOf, type ShareView, sharePage } from '../src/share/page.ts'
-import { recordBeacon, type ViewRow, type ViewStore, type ViewSummary } from '../src/share/views.ts'
+import {
+  recordBeacon,
+  type ViewRow,
+  type ViewStore,
+  type ViewSummary,
+  WEBHOOK_USER_AGENT,
+} from '../src/share/views.ts'
 
 /* ------------------------------------------------- the slice of Workers types we use */
 export interface KV {
@@ -104,6 +114,18 @@ async function authorized(req: Request, env: Env) {
   let diff = 0
   for (let i = 0; i < a.length; i++) diff |= a[i]! ^ b[i]!
   return diff === 0
+}
+
+const RELAY_LIMIT = 30
+/** a small per-minute limit on /relay/webhook: there's one token (one hosted app), so this is
+ * effectively a global cap, loose enough for a morning digest and a test message, tight enough
+ * that a runaway loop can't turn this worker into a Discord/Slack spam relay */
+async function relayAllowed(env: Env): Promise<boolean> {
+  const bucket = `relay:rate:${Math.floor(Date.now() / 60_000)}`
+  const n = Number((await env.FILMS.get(bucket, 'text')) ?? '0')
+  if (n >= RELAY_LIMIT) return false
+  await env.FILMS.put(bucket, String(n + 1), { expirationTtl: 70 })
+  return true
 }
 
 /** a related project: a name, a line and an https link, or nothing */
@@ -604,6 +626,35 @@ export async function handle(req: Request, env: Env, ctx: Ctx): Promise<Response
       }
     }
     return err(404, 'not found')
+  }
+
+  // private: relays a webhook post for the hosted app (its own IP can be blocked; this one isn't)
+  if (parts[0] === 'relay' && parts[1] === 'webhook' && parts.length === 2) {
+    if (req.method !== 'POST') return err(405, 'method not allowed')
+    if (!(await authorized(req, env))) return err(401, 'missing or wrong SHARE_TOKEN')
+    if (!(await relayAllowed(env))) return err(429, 'too many webhook posts; try again in a minute')
+    const b = (await req.json().catch(() => null)) as { url?: unknown; payload?: unknown } | null
+    const target = typeof b?.url === 'string' ? b.url : ''
+    if (!webhookOk(target))
+      return err(400, 'url must be an https Slack or Discord incoming webhook')
+    if (!b || typeof b.payload !== 'object' || b.payload === null)
+      return err(400, 'payload must be an object')
+    try {
+      const res = await fetch(target, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'user-agent': WEBHOOK_USER_AGENT },
+        body: JSON.stringify(b.payload),
+        signal: AbortSignal.timeout(5_000),
+      })
+      const text = await res.text().catch(() => '')
+      // never the target url: only the caller (the hosted app) knows which webhook it posted to
+      return json({ status: res.status, body: text.slice(0, 200) })
+    } catch (e) {
+      return json({
+        status: null,
+        body: (e instanceof Error ? e.message : 'network error').slice(0, 200),
+      })
+    }
   }
 
   if (url.pathname === '/')

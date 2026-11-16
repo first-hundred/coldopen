@@ -127,12 +127,12 @@ import {
 import { applyEdit, precheckEdit } from '../script/checks.ts'
 import { type Review, reviewFilm } from '../script/review.ts'
 import { ProfileSchema } from '../script/types.ts'
-import { oneFilmViews, shareViews, unshare } from '../share/client.ts'
+import { notifyThrough, oneFilmViews, shareViews, unshare } from '../share/client.ts'
 import { attachment } from '../share/download.ts'
 import { gifEmbed } from '../share/embed.ts'
 import { sharePage, viewFromRun } from '../share/page.ts'
 import { filmViews, NO_VIEWS, pgViewStore, viewSummaries } from '../share/pg.ts'
-import { notify, recordBeacon, type ViewSummary } from '../share/views.ts'
+import { recordBeacon, type ViewSummary } from '../share/views.ts'
 import { type SlackClient, urlFromMention, verifySlackSignature } from '../slack.ts'
 import { registerHttpTracing } from '../tracing.ts'
 import {
@@ -2231,7 +2231,7 @@ export async function buildApi({
         return reply
           .status(409)
           .send({ error: { code: 'no_webhook', message: 'Save a webhook first' } })
-      const result = await notify(webhook, TEST_MESSAGE)
+      const result = await notifyThrough(share, webhook, TEST_MESSAGE)
       return { sent: result.ok, message: testResultMessage(webhook, result) }
     },
   )
@@ -2578,7 +2578,7 @@ export async function buildApi({
         failed,
         publicUrl: base,
       })
-      if (d) logIfFailed(await notify(settings.webhook, d.text))
+      if (d) logIfFailed(await notifyThrough(share, settings.webhook, d.text))
       await sql`
         update autopilot_runs set digest_at = now() where owner = ${owner} and day = ${day.date}::date`
       digestAt = new Date()
@@ -2593,7 +2593,7 @@ export async function buildApi({
     const batch2Ids = new Set(batch2.map((m) => m.id))
     const moreReady = queue.ready.filter((r) => batch2Ids.has(r.film.id)).length
     const msg = moreReadyMessage(moreReady, base)
-    if (msg) logIfFailed(await notify(settings.webhook, msg))
+    if (msg) logIfFailed(await notifyThrough(share, settings.webhook, msg))
     await sql`
       update autopilot_runs set digest2_at = now() where owner = ${owner} and day = ${day.date}::date`
     return 'done'
@@ -3195,6 +3195,7 @@ export async function buildApi({
           salt: cfg.VIEW_SALT,
           webhook: cfg.NOTIFY_WEBHOOK_URL,
           link: `${publicUrl.replace(/\/$/, '')}/f/${req.params.id}`,
+          notifier: (webhook, text) => notifyThrough(share, webhook, text),
           defer: (p) => {
             p.catch(() => {})
           },
