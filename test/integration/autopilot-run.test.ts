@@ -234,11 +234,18 @@ describe('POST /internal/autopilot/run', () => {
   })
 
   it('scores today from the Autopilot profile, and leaves /v1/targets on the newest', async () => {
-    // a second job seeker profile, saved last, wanting a different role
+    // a second job seeker profile, saved last, wanting a different role: its own points too, not
+    // alex's, so fit scoring (which matches points as well as skills) actually differs
     const other = {
       ...profile('candidate'),
       sender: { ...profile('candidate').sender, role: 'Product designer' },
       skills: ['Figma'],
+      points: [
+        'Redesigns onboarding flows that lift activation',
+        'Runs usability tests before any screen ships',
+        'Builds a design system other designers reuse',
+        'Turns support complaints into wireframes',
+      ],
     }
     expect((await saveProfile('designer', me, other)).statusCode).toBe(200)
     const targets = await app.inject({ url: '/v1/targets?limit=50', headers: me })
