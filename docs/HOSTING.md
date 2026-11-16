@@ -45,6 +45,17 @@ In the repo: **Settings → Secrets and variables → Actions**.
 
 The **Render films for the hosted app** workflow now runs whenever a film is waiting. Its logs are public, like everything in a public repository, so it logs errors only.
 
+### Autopilot's own schedule
+
+Two more scheduled jobs run on top of the renderer above, both needing the same `RENDER_DISPATCH_TOKEN`:
+
+- **autopilot.yml**, weekdays at 13:00 UTC (5am Pacific in winter, 6am in summer): calls the app's `/internal/autopilot/run` once, waits 3 minutes, and calls again, up to 40 times. Each call makes at most one film _per person_, so the 3-minute gap isn't about spacing out one person's films: it's there because Groq's free tier allows about 8,000 tokens a minute per model, and a film's script and messages together can run to a few thousand tokens, so calling any faster risks every active person's film landing in the same minute and tripping the limit at once. The built-in writer takes over mid-run rather than failing a film outright.
+- **keep-awake.yml**, every 10 minutes, every day: on top of keeping Render awake (below), each ping also asks the app to post any Autopilot digest that's due (`/internal/autopilot/digest`). It needs its own trigger because autopilot.yml's 40-call loop exits as soon as every person's pick for the day has been tried, often well before the day's films finish rendering, so nothing left running would otherwise notice when the last film lands and the morning message is due.
+
+**Why `per_day` tops out at 25.** Each autopilot.yml call advances every active person by one film, so the number of calls a morning needs is the largest `per_day` among them. At 3 minutes a call, 25 films take 75 minutes — inside the job's 100-minute timeout with room for the wake-up retries and the occasional failed call retried once after 30 seconds. The floor of the range, 20, is already about LinkedIn's weekly connection-request limit spread over a 5-day week (100 ÷ 5); 25 leaves a little room above that without pushing the schedule past what one morning's run can finish.
+
+**Tokens a film takes.** Groq's free tier (8,000 tokens a minute, about 1,000 requests a day) is the binding limit, and a film's script and messages are each one model call with `openai/gpt-oss-120b`. No run had measured it yet as of this writing; `src/autopilot/run.ts` and `src/script/writer.ts`'s own comments expect "a few thousand" tokens a film, script and messages combined. The figure from Autopilot's first live dispatch, once it's run, replaces this line.
+
 ## 4. The web app (Render, 10 minutes)
 
 1. Sign up at [render.com](https://render.com) with GitHub (no card).
