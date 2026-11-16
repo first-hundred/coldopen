@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { PER_DAY_MAX, PER_DAY_MIN } from '../../src/autopilot/settings.ts'
 import { ApiError, type Autopilot, type AutopilotToday, api, type Format, send } from './api.ts'
 import { safeUrl } from './safe.ts'
-import { ErrorNote, useToast } from './ui.tsx'
+import { ErrorNote } from './ui.tsx'
 
 /**
  * Autopilot, on the Profile page: films a weekday for Network this week's companies, on the
@@ -43,10 +43,9 @@ export function AutopilotSection() {
       void qc.invalidateQueries({ queryKey: ['autopilot-today'] })
     },
   })
-  const toast = useToast()
   const test = useMutation({
-    mutationFn: (webhook: string) => send('POST', '/v1/autopilot/test', { webhook }),
-    onSuccess: () => toast({ text: 'Test message sent. Check Slack or Discord.' }),
+    mutationFn: (webhook: string) =>
+      send<{ sent: boolean; message: string }>('POST', '/v1/autopilot/test', { webhook }),
   })
 
   const denied = q.error instanceof ApiError && q.error.status === 403
@@ -197,6 +196,7 @@ export function AutopilotSection() {
             </button>
           </div>
           <ErrorNote error={test.error} lead="Couldn’t send a test message: " />
+          {test.isSuccess && !test.isPending && <small role="status">{test.data.message}</small>}
         </label>
 
         <ErrorNote error={save.error} lead="Couldn’t save Autopilot: " />

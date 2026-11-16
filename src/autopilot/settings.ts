@@ -15,15 +15,37 @@ export function webhookOk(url: string): boolean {
     const u = new URL(url)
     if (u.protocol !== 'https:' || u.username || u.password || u.port) return false
     if (u.hostname === 'hooks.slack.com') return u.pathname.length > 1
-    if (u.hostname === 'discord.com') return u.pathname.startsWith('/api/webhooks/')
+    // discordapp.com is Discord's old webhook domain; still live, still accepted
+    if (u.hostname === 'discord.com' || u.hostname === 'discordapp.com')
+      return u.pathname.startsWith('/api/webhooks/')
     return false
   } catch {
     return false
   }
 }
 
+/** discordapp.com webhooks still work, but we save them under discord.com's current domain */
+function normalizeWebhook(url: string): string {
+  try {
+    const u = new URL(url)
+    if (u.hostname === 'discordapp.com') u.hostname = 'discord.com'
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
 export const WEBHOOK_RULE =
   'the webhook must be an https link on hooks.slack.com or discord.com/api/webhooks'
+
+/** trims, blanks to null, rewrites discordapp.com to discord.com, and checks the result */
+export const WebhookField = z
+  .string()
+  .trim()
+  .max(500)
+  .nullable()
+  .transform((w) => (w ? normalizeWebhook(w) : null))
+  .refine((w) => w === null || webhookOk(w), WEBHOOK_RULE)
 
 export const AutopilotSchema = z.object({
   on: z.boolean(),
@@ -39,13 +61,7 @@ export const AutopilotSchema = z.object({
     .transform((d) => [...new Set(d)].sort((a, b) => a - b)),
   profileId: z.string().max(40).nullable(),
   format: z.enum(FORMATS),
-  webhook: z
-    .string()
-    .trim()
-    .max(500)
-    .nullable()
-    .transform((w) => (w ? w : null))
-    .refine((w) => w === null || webhookOk(w), WEBHOOK_RULE),
+  webhook: WebhookField,
 })
 
 export type AutopilotSettings = z.output<typeof AutopilotSchema>

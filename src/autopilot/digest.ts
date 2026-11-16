@@ -66,3 +66,25 @@ export function moreReadyMessage(moreReady: number, publicUrl: string): string |
 /** "Send a test message" on Account → Autopilot */
 export const TEST_MESSAGE =
   "This is a test message from coldopen's Autopilot. If you can see this, the webhook works."
+
+/** the service a webhook posts to, for wording a result ("Discord answered 403: …") */
+export function serviceOf(webhook: string): 'Slack' | 'Discord' {
+  try {
+    return new URL(webhook).hostname === 'hooks.slack.com' ? 'Slack' : 'Discord'
+  } catch {
+    return 'Discord'
+  }
+}
+
+/** what the test message's button shows once the webhook has answered (or not) */
+export function testResultMessage(
+  webhook: string,
+  result: { ok: boolean; status: number | null; body: string },
+): string {
+  if (result.ok) return 'Sent.'
+  const service = serviceOf(webhook)
+  const said = result.body.slice(0, 120)
+  return result.status
+    ? `${service} answered ${result.status}${said ? `: ${said}` : ''}`
+    : `Couldn’t reach ${service}${said ? `: ${said}` : ''}`
+}

@@ -18,6 +18,8 @@ let sql: Sql
 let app: Awaited<ReturnType<typeof buildApi>>
 let hookServer: Server
 let posts: string[] = []
+let headersSeen: Record<string, string | string[] | undefined>[] = []
+let hookResponse = { status: 200, body: 'ok' }
 let hookUrl: string
 const TOKEN = 'dispatch-secret'
 const me: Record<string, string> = { authorization: 'Bearer k1' }
@@ -28,7 +30,9 @@ beforeAll(async () => {
     let body = ''
     for await (const c of req) body += c
     posts.push(body)
-    res.end('ok')
+    headersSeen.push(req.headers)
+    res.writeHead(hookResponse.status)
+    res.end(hookResponse.body)
   })
   await new Promise<void>((r) => hookServer.listen(0, '127.0.0.1', r))
   hookUrl = `http://127.0.0.1:${(hookServer.address() as AddressInfo).port}/hook`
@@ -63,6 +67,8 @@ afterAll(async () => {
 
 beforeEach(async () => {
   posts = []
+  headersSeen = []
+  hookResponse = { status: 200, body: 'ok' }
   await sql`delete from runs`
   await sql`delete from autopilot_runs`
   await sql`delete from autopilot`
@@ -161,6 +167,27 @@ describe('the morning digest', () => {
     expect(body.text).toContain('ready-b failed: the site timed out')
     expect(body.text).toContain('Open Today: https://coldopen.example')
     expect(body.text).toBe(body.content) // the one body both Slack and Discord read from
+    expect(headersSeen[0]?.['user-agent']).toBeTruthy()
+  })
+
+  it('reports pending in its response while films are still rendering, 0 once settled', async () => {
+    await turnOn(hookUrl)
+    const a = await autopilotFilm('pending-a.example', 'running')
+    await storeMade([a])
+    expect((await checkDigest()).json()).toMatchObject({ checked: 1, pending: 1 })
+    await sql`update runs set status = 'failed', error = 'ran out of time' where id = ${a.id}`
+    expect((await checkDigest()).json()).toMatchObject({ checked: 1, pending: 0 })
+  })
+
+  it('still marks itself done, and never names the webhook, when the post fails', async () => {
+    await turnOn(hookUrl)
+    hookResponse = { status: 403, body: 'Invalid Webhook Token' }
+    const a = await autopilotFilm('bad-hook.example')
+    await storeMade([a])
+    expect((await checkDigest()).json()).toMatchObject({ checked: 1, pending: 0 })
+    expect(posts).toHaveLength(1) // it did try to post
+    await checkDigest()
+    expect(posts).toHaveLength(1) // but never retries once it's marked settled
   })
 
   it('never posts twice, even when checked again or the run retries', async () => {
@@ -221,7 +248,7 @@ describe('the morning digest', () => {
 })
 
 describe('POST /v1/autopilot/test', () => {
-  it('sends a test message to the saved webhook', async () => {
+  it('sends a test message to the saved webhook, with a User-Agent, and says it was sent', async () => {
     await turnOn(hookUrl)
     const r = await app.inject({
       method: 'POST',
@@ -230,7 +257,25 @@ describe('POST /v1/autopilot/test', () => {
       payload: {},
     })
     expect(r.statusCode).toBe(200)
+    expect(r.json()).toEqual({ sent: true, message: 'Sent.' })
     expect(posts).toHaveLength(1)
+    expect(headersSeen[0]?.['user-agent']).toBeTruthy()
+  })
+
+  it('says what the service answered, instead of claiming success, on a bad webhook', async () => {
+    await turnOn(hookUrl)
+    hookResponse = { status: 403, body: 'Invalid Webhook Token' }
+    const r = await app.inject({
+      method: 'POST',
+      url: '/v1/autopilot/test',
+      headers: me,
+      payload: {},
+    })
+    expect(r.statusCode).toBe(200) // never an HTTP error: posting to it never fails the run either
+    const body = r.json()
+    expect(body.sent).toBe(false)
+    expect(body.message).toContain('answered 403')
+    expect(body.message).toContain('Invalid Webhook Token')
   })
 
   it('needs a webhook saved first', async () => {

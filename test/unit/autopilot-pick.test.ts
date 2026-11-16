@@ -111,10 +111,13 @@ describe('the settings', () => {
   it('takes only https Slack and Discord webhooks', () => {
     expect(webhookOk('https://hooks.slack.com/services/T0/B0/xyz')).toBe(true)
     expect(webhookOk('https://discord.com/api/webhooks/123/abc')).toBe(true)
+    // Discord's old webhook domain still works
+    expect(webhookOk('https://discordapp.com/api/webhooks/123/abc')).toBe(true)
     for (const bad of [
       'http://hooks.slack.com/services/T0/B0/xyz',
       'https://hooks.slack.com.evil.com/services/x',
       'https://discord.com/channels/1/2',
+      'https://discordapp.com/channels/1/2',
       'https://evil.com/?hooks.slack.com',
       'https://user@hooks.slack.com/services/x',
       'not a link',
@@ -122,5 +125,13 @@ describe('the settings', () => {
       expect(webhookOk(bad)).toBe(false)
     // an empty webhook means none
     expect(AutopilotSchema.parse({ ...DEFAULT_SETTINGS, webhook: '  ' }).webhook).toBeNull()
+  })
+
+  it('saves a discordapp.com webhook under discord.com, Discord’s current domain', () => {
+    const parsed = AutopilotSchema.parse({
+      ...DEFAULT_SETTINGS,
+      webhook: 'https://discordapp.com/api/webhooks/123/abc',
+    })
+    expect(parsed.webhook).toBe('https://discord.com/api/webhooks/123/abc')
   })
 })

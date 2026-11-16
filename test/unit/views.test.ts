@@ -3,6 +3,7 @@ import { sharePage, viewFromStoryboard } from '../../src/share/page.ts'
 import {
   applyBeacon,
   isBot,
+  notify,
   parseBeacon,
   recordBeacon,
   referrerHost,
@@ -158,6 +159,45 @@ describe('a viewing session', () => {
       firstPlayAt: at(0).toISOString(),
       lastSeen: at(90).toISOString(),
     })
+  })
+})
+
+describe('notify', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('posts a shape each service reads, and a User-Agent (Discord’s Cloudflare rejects none)', async () => {
+    let seen: { headers: HeadersInit; body: unknown } | undefined
+    vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => {
+      seen = { headers: init.headers as HeadersInit, body: JSON.parse(String(init.body)) }
+      return new Response(null, { status: 204 })
+    })
+    const r = await notify('https://discord.com/api/webhooks/1/x', 'hello')
+    expect(r).toEqual({ ok: true, status: 204, body: '' })
+    expect(seen?.body).toEqual({ text: 'hello', content: 'hello' })
+    const headers = seen?.headers as Record<string, string>
+    expect(headers['user-agent']).toBeTruthy()
+    expect(headers['content-type']).toBe('application/json')
+  })
+
+  it('reports what the service said, without throwing, on a non-2xx answer', async () => {
+    vi.stubGlobal(
+      'fetch',
+      async () => new Response('{"message": "401: Unauthorized"}', { status: 401 }),
+    )
+    const r = await notify('https://discord.com/api/webhooks/1/x', 'hello')
+    expect(r).toEqual({ ok: false, status: 401, body: '{"message": "401: Unauthorized"}' })
+  })
+
+  it('reports a network failure instead of throwing', async () => {
+    vi.stubGlobal('fetch', async () => {
+      throw new Error('fetch failed')
+    })
+    const r = await notify('https://discord.com/api/webhooks/1/x', 'hello')
+    expect(r).toEqual({ ok: false, status: null, body: 'fetch failed' })
+  })
+
+  it('does nothing, and reports failure, with no webhook', async () => {
+    expect(await notify(undefined, 'hello')).toEqual({ ok: false, status: null, body: '' })
   })
 })
 

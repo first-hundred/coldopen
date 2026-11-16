@@ -12,15 +12,14 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import { z } from 'zod'
-import { digestOf, moreReadyMessage, TEST_MESSAGE } from '../autopilot/digest.ts'
+import { digestOf, moreReadyMessage, TEST_MESSAGE, testResultMessage } from '../autopilot/digest.ts'
 import { dayOf, isOn, pickToday } from '../autopilot/pick.ts'
 import { runAutopilotOnce } from '../autopilot/run.ts'
 import {
   AutopilotSchema,
   type AutopilotSettings,
   DEFAULT_SETTINGS,
-  WEBHOOK_RULE,
-  webhookOk,
+  WebhookField,
 } from '../autopilot/settings.ts'
 import type { Config } from '../config.ts'
 import type { Sql } from '../db/index.ts'
@@ -2220,19 +2219,8 @@ export async function buildApi({
         tags: ['autopilot'],
         summary: 'Send a test message to the Autopilot webhook',
         description:
-          'Posts a short test line to the webhook in the request body, or your saved one when none is given. Best-effort, like the morning digest: a bad or unreachable webhook never shows as an error here, since posting to it never fails the run either.',
-        body: z
-          .object({
-            webhook: z
-              .string()
-              .trim()
-              .max(500)
-              .nullable()
-              .transform((w) => (w ? w : null))
-              .refine((w) => w === null || webhookOk(w), WEBHOOK_RULE)
-              .optional(),
-          })
-          .optional(),
+          'Posts a short test line to the webhook in the request body, or your saved one when none is given. Never answers with an HTTP error for a bad or unreachable webhook (posting to it never fails the run either); `message` says what the service answered instead.',
+        body: z.object({ webhook: WebhookField.optional() }).optional(),
       },
     },
     async (req, reply) => {
@@ -2243,8 +2231,8 @@ export async function buildApi({
         return reply
           .status(409)
           .send({ error: { code: 'no_webhook', message: 'Save a webhook first' } })
-      await notify(webhook, TEST_MESSAGE)
-      return { sent: true }
+      const result = await notify(webhook, TEST_MESSAGE)
+      return { sent: result.ok, message: testResultMessage(webhook, result) }
     },
   )
 
@@ -2531,11 +2519,17 @@ export async function buildApi({
    * simplest trigger that outlives both a restart and autopilot.yml's own polling, which stops
    * as soon as every pick for the day has been tried, often well before the films finish
    * rendering. Each message posts once: autopilot_runs.digest_at / digest2_at record it, so a
-   * re-check (the next ping, or a retried run) never posts either one twice.
+   * re-check (the next ping, or a retried run) never posts either one twice. A failed post
+   * (dead webhook, Discord/Slack answering an error) still counts as settled: it logs the
+   * status and body, never the webhook URL, and moves on rather than retrying forever.
+   *
+   * Returns whether anything is still waiting on today's films to finish rendering, so
+   * autopilot.yml's own polling knows when it can stop: 'pending' until both messages (or the
+   * second, when there's no batch2) are posted or ruled out, 'done' once they are.
    */
-  const checkDigest = async (owner: Owner): Promise<void> => {
+  const checkDigest = async (owner: Owner): Promise<'done' | 'pending'> => {
     const settings = await autopilotOf(owner)
-    if (!settings.webhook) return
+    if (!settings.webhook) return 'done'
     const day = dayOf(Date.now())
     const [row] = await sql<
       {
@@ -2546,7 +2540,7 @@ export async function buildApi({
     >`
       select made, digest_at, digest2_at from autopilot_runs
       where owner = ${owner} and day = ${day.date}::date`
-    if (!row) return
+    if (!row) return 'done'
     const made = row.made ?? []
     const ids = made.map((m) => m.id)
     const statuses = ids.length
@@ -2558,8 +2552,16 @@ export async function buildApi({
     const batch1 = made.slice(0, 10)
     const batch2 = made.slice(10)
     const base = publicUrl.replace(/\/$/, '')
+    const logIfFailed = (result: { ok: boolean; status: number | null; body: string }) => {
+      if (!result.ok)
+        app.log.warn(
+          { status: result.status, body: result.body.slice(0, 500) },
+          'autopilot digest: the webhook post failed',
+        )
+    }
 
-    if (!row.digestAt && batch1.every((m) => finished(m.id))) {
+    let digestAt = row.digestAt
+    if (!digestAt && batch1.every((m) => finished(m.id))) {
       const [queue, followUps, warm] = await Promise.all([
         queueFor(owner),
         followUpsDueCount(owner),
@@ -2576,20 +2578,25 @@ export async function buildApi({
         failed,
         publicUrl: base,
       })
-      if (d) await notify(settings.webhook, d.text)
+      if (d) logIfFailed(await notify(settings.webhook, d.text))
       await sql`
         update autopilot_runs set digest_at = now() where owner = ${owner} and day = ${day.date}::date`
+      digestAt = new Date()
     }
+    if (!digestAt) return 'pending'
 
-    if (row.digestAt && !row.digest2At && batch2.length && batch2.every((m) => finished(m.id))) {
-      const queue = await queueFor(owner)
-      const batch2Ids = new Set(batch2.map((m) => m.id))
-      const moreReady = queue.ready.filter((r) => batch2Ids.has(r.film.id)).length
-      const msg = moreReadyMessage(moreReady, base)
-      if (msg) await notify(settings.webhook, msg)
-      await sql`
-        update autopilot_runs set digest2_at = now() where owner = ${owner} and day = ${day.date}::date`
-    }
+    if (!batch2.length) return 'done'
+    if (row.digest2At) return 'done'
+    if (!batch2.every((m) => finished(m.id))) return 'pending'
+
+    const queue = await queueFor(owner)
+    const batch2Ids = new Set(batch2.map((m) => m.id))
+    const moreReady = queue.ready.filter((r) => batch2Ids.has(r.film.id)).length
+    const msg = moreReadyMessage(moreReady, base)
+    if (msg) logIfFailed(await notify(settings.webhook, msg))
+    await sql`
+      update autopilot_runs set digest2_at = now() where owner = ${owner} and day = ${day.date}::date`
+    return 'done'
   }
 
   app.post('/internal/autopilot/digest', { schema: { hide: true } }, async (req, reply) => {
@@ -2602,14 +2609,17 @@ export async function buildApi({
     const owners = await sql<
       { owner: string }[]
     >`select owner from autopilot where webhook is not null`
+    let pending = 0
     for (const o of owners) {
       try {
-        await checkDigest(o.owner as Owner)
+        if ((await checkDigest(o.owner as Owner)) === 'pending') pending++
       } catch (err) {
         app.log.error({ err }, 'autopilot digest check failed')
+        pending++
       }
     }
-    return { checked: owners.length }
+    // autopilot.yml polls this until pending is 0: posted, or ruled out, for every owner
+    return { checked: owners.length, pending }
   })
 
   app.get(

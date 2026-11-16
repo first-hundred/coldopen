@@ -187,19 +187,36 @@ export function playMessage(company: string, row: ViewRow, link: string): string
   return `Your film for ${company} is being watched (${where}). ${link}`
 }
 
-/** Posts to a Slack or Discord incoming webhook. Failures are swallowed: a view still counts. */
-export async function notify(webhook: string | undefined, text: string): Promise<void> {
-  if (!webhook) return
+export interface NotifyResult {
+  ok: boolean
+  /** null when the request never got an answer (network error, timeout) */
+  status: number | null
+  /** the response body, or the error message when there was no response */
+  body: string
+}
+
+/**
+ * Posts to a Slack or Discord incoming webhook, and says what happened: never throws, so a
+ * view still counts (and a digest check still marks itself done) even when the webhook is dead.
+ * Discord's Cloudflare front rejects requests with no User-Agent, so one is always sent.
+ */
+export async function notify(webhook: string | undefined, text: string): Promise<NotifyResult> {
+  if (!webhook) return { ok: false, status: null, body: '' }
   try {
-    await fetch(webhook, {
+    const res = await fetch(webhook, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        'user-agent': 'coldopen-autopilot/1.0 (+https://github.com/tiwaker9404/coldopen)',
+      },
       // Slack reads "text", Discord reads "content"
       body: JSON.stringify({ text, content: text }),
       signal: AbortSignal.timeout(5000),
     })
-  } catch {
-    // best-effort
+    const body = await res.text().catch(() => '')
+    return { ok: res.ok, status: res.status, body }
+  } catch (err) {
+    return { ok: false, status: null, body: err instanceof Error ? err.message : 'network error' }
   }
 }
 
@@ -226,7 +243,7 @@ export interface RecordInput {
   link: string
   now?: Date
   /** runs the notification after the response (Workers' waitUntil); awaited when absent */
-  defer?: (p: Promise<void>) => void
+  defer?: (p: Promise<unknown>) => void
 }
 
 /**

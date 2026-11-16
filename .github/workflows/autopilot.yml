@@ -6,6 +6,11 @@ name: Autopilot
 # Groq) isn't asked for every film at once. The app keeps the day's pick and what it made, so
 # a run that stops halfway carries on with the next call, and extra calls never make extra films.
 #
+# Once every pick is made (or tried), this workflow polls the morning digest every 3 minutes
+# too, until it's posted or there's nothing to post. keep-awake.yml pings the same endpoint
+# every 10 minutes as a backstop, but GitHub only runs that schedule about once an hour in
+# practice, which would otherwise leave the morning message arriving up to an hour late.
+#
 # Needs the repository secret RENDER_DISPATCH_TOKEN: the same value as the app's.
 on:
   workflow_dispatch:
@@ -55,3 +60,20 @@ jobs:
             [ "$n" -lt 40 ] && sleep 180
           done
           echo "stopped after 40 calls"
+      - name: Post the morning digest, polling until it's posted or there's nothing to post
+        run: |
+          if [ -z "$TOKEN" ]; then echo "::error::the RENDER_DISPATCH_TOKEN secret isn't set"; exit 1; fi
+          ping() {
+            curl -fsS --max-time 60 -X POST -H "authorization: Bearer $TOKEN" "$APP/internal/autopilot/digest"
+          }
+          for n in $(seq 1 15); do
+            out=$(ping || true)
+            pending=$(echo "$out" | jq -r '.pending // "unknown"' 2>/dev/null)
+            echo "digest check $n: pending=$pending"
+            if [ "$pending" = "0" ]; then
+              echo "every digest for today is posted, or ruled out"
+              exit 0
+            fi
+            [ "$n" -lt 15 ] && sleep 180
+          done
+          echo "::warning::the digest is still pending after 15 checks; keep-awake.yml will keep trying"
