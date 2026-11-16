@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AccountMenu, FramedNotice, StatsPanel } from './Account.tsx'
 import {
   ApiError,
+  type AutopilotQueue,
   api,
   apiKey,
   type Film,
@@ -29,6 +30,7 @@ import { Openers } from './Openers.tsx'
 import { Pitch } from './Pitch.tsx'
 import { ProfilesPage } from './Profiles.tsx'
 import { jobBoxNote, pasteBody, pasteNote, pasting, walledInList } from './pasteJob.ts'
+import { ReadyToSend } from './ReadyToSend.tsx'
 import { Startups } from './Startups.tsx'
 import { NetworkThisWeek } from './Targets.tsx'
 import { ErrorNote, notify, useToast } from './ui.tsx'
@@ -128,6 +130,12 @@ export function App() {
   // warm-lead touches wait on the sender too; the same query WarmLeads reads, so marking one done
   // updates the count straight away
   const warm = useQuery({ queryKey: ['warm'], queryFn: () => api<WarmList>('/v1/warm') })
+  // the same query ReadyToSend reads, so marking a film sent or skipping its company updates
+  // the call sheet's count straight away
+  const queue = useQuery({
+    queryKey: ['autopilot-queue'],
+    queryFn: () => api<AutopilotQueue>('/v1/autopilot/queue'),
+  })
   const due = { followUps: followups.data?.data.length ?? 0, warm: warm.data?.data.length ?? 0 }
   const dueCount = countDue(due)
   // Pitch a role needs no profile: a recruiter arriving from a share page goes straight there
@@ -238,7 +246,7 @@ export function App() {
             </>
           ) : (
             <>
-              <CallSheet list={list} due={due} />
+              <CallSheet list={list} due={due} ready={queue.data?.ready.length ?? 0} />
               <Composer
                 me={me.data}
                 profiles={profiles.data?.data ?? []}
@@ -250,6 +258,7 @@ export function App() {
               <GettingStarted films={list} onOpen={setOpen} onGuide={() => setSide('guide')} />
               <FollowUps onOpen={setOpen} />
               <WarmLeads />
+              <ReadyToSend onOpen={setOpen} />
               <NetworkThisWeek onMake={(url) => setFill({ url, n: Date.now() })} />
               <InProduction list={list} name={name} open={open} onOpen={setOpen} />
               <Jobs onMade={setOpen} variant="preview" />
@@ -366,11 +375,20 @@ function PageTitle({ title, sub, aside }: { title: string; sub: string; aside?: 
  * Today is the call sheet: on a set, the page that says what happens today. The date, then one
  * line on what needs you, most urgent first.
  */
-function CallSheet({ list, due }: { list: Film[]; due: { followUps: number; warm: number } }) {
+function CallSheet({
+  list,
+  due,
+  ready,
+}: {
+  list: Film[]
+  due: { followUps: number; warm: number }
+  /** today's films that passed review, waiting to send (GET /v1/autopilot/queue) */
+  ready: number
+}) {
   const line = callLine({
     ...due,
     rolling: list.filter((f) => f.status === 'queued' || f.status === 'running').length,
-    ready: list.filter((f) => f.status === 'succeeded' && !f.outreach).length,
+    ready,
     anyFilms: list.length > 0,
   })
   const day = new Date().toLocaleDateString(undefined, {

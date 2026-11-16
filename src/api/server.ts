@@ -2235,6 +2235,71 @@ export async function buildApi({
     },
   )
 
+  /** the newest thing a film's homework read, just what the ready-to-send card needs */
+  const latestHomework = (r: FilmRow) => {
+    const item = newestPost(r)
+    return item ? { title: item.title, date: item.date ?? null } : null
+  }
+  /** a review's flags, flattened across its scenes, for the "needs a look" list */
+  const reviewFlags = (review: Review) =>
+    review.scenes.flatMap((s) => s.flags.map((f) => ({ code: f.code, text: f.text })))
+
+  app.get(
+    '/v1/autopilot/queue',
+    {
+      schema: {
+        tags: ['autopilot'],
+        summary: "Today's films, ready to send, in the order to work them",
+        description:
+          "Films Autopilot made in the last 3 days that you haven't marked sent, skipped (\"Not for me\" on the company) or that failed to render. `ready` passed review, best-scoring company first; `needsLook` has something to check first, with the flags from GET /v1/films/:id/review. `made` and `perDay` are today's Autopilot progress. `sentThisWeek` counts films you've marked sent since Monday, a stand-in for LinkedIn's weekly connection-request limit: once it is high, lead with email instead.",
+      },
+    },
+    async (req) => {
+      const now = Date.now()
+      const day = dayOf(now)
+      const [settings, hidden, rows, madeToday, sentWeek] = await Promise.all([
+        autopilotOf(req.owner),
+        sql<{ host: string }[]>`select host from target_hides where owner = ${req.owner}`,
+        sql<FilmRow[]>`
+          select * from runs where agent = 'film' and owner = ${req.owner}
+            and origin = 'autopilot' and status = 'succeeded' and outreach is null
+            and created_at > now() - interval '3 days'
+          order by (created_at at time zone ${WEEK_ZONE})::date desc, created_at asc`,
+        sql<{ n: number }[]>`
+          select count(*)::int as n from runs
+          where agent = 'film' and owner = ${req.owner} and origin = 'autopilot'
+            and status not in ('failed', 'cancelled')
+            and (created_at at time zone ${WEEK_ZONE})::date = ${day.date}::date`,
+        sql<{ n: number }[]>`
+          select count(*)::int as n from runs
+          where agent = 'film' and owner = ${req.owner} and outreach is not null
+            and (outreach->>'sentAt')::timestamptz >= ${weekStart(now)}`,
+      ])
+      const hides = new Set(hidden.map((h) => h.host))
+      const live = rows.filter((r) => !hides.has(targetHost(r.output?.host ?? r.input.url)))
+      const ready: unknown[] = []
+      const needsLook: unknown[] = []
+      for (const r of live) {
+        const review = await reviewOf(r)
+        if (!review) continue
+        const film = filmDto(r, publicUrl)
+        if (review.ready) {
+          const who = (await reachFor(r, req.owner)).groups?.[0] ?? null
+          ready.push({ film, who, homework: latestHomework(r) })
+        } else {
+          needsLook.push({ film, flags: reviewFlags(review) })
+        }
+      }
+      return {
+        ready,
+        needsLook,
+        made: madeToday[0]?.n ?? 0,
+        perDay: settings.perDay,
+        sentThisWeek: sentWeek[0]?.n ?? 0,
+      }
+    },
+  )
+
   app.get(
     '/v1/me/keys',
     {

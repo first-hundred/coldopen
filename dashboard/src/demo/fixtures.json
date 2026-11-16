@@ -3625,6 +3625,1089 @@
       "month": {
         "conversations": 2
       }
+    },
+    "/v1/autopilot/queue": {
+      "ready": [
+        {
+          "film": {
+            "id": "run_01M7867DHYC6VB3T48FC96D79Z",
+            "status": "succeeded",
+            "url": "https://lumenhealth.example/",
+            "format": "square",
+            "batch": null,
+            "ref": null,
+            "sender": "Alex Rivera",
+            "pitch": null,
+            "progress": null,
+            "attempts": 1,
+            "error": null,
+            "errorCode": null,
+            "createdAt": "2026-11-12T15:32:38.078Z",
+            "completedAt": "2026-11-12T15:34:06.092Z",
+            "company": "Lumen Health",
+            "host": "lumenhealth.example",
+            "durationSec": 29.2,
+            "files": {
+              "film": "/v1/films/run_01M7867DHYC6VB3T48FC96D79Z/files/film-square.mp4",
+              "poster": "/v1/films/run_01M7867DHYC6VB3T48FC96D79Z/files/poster.jpg",
+              "gif": "/v1/films/run_01M7867DHYC6VB3T48FC96D79Z/files/preview.gif",
+              "sheet": "/v1/films/run_01M7867DHYC6VB3T48FC96D79Z/files/contact-sheet.jpg"
+            },
+            "share": "https://tiwaker9404.github.io/coldopen/media/demo/run_01M7867DHYC6VB3T48FC96D79Z",
+            "job": null,
+            "views": {
+              "opens": 1,
+              "viewers": 1,
+              "plays": 1,
+              "finishes": 1,
+              "clicks": 1,
+              "bestSeconds": 29.2,
+              "firstPlayAt": "2026-11-12T15:35:03.546Z",
+              "lastSeen": "2026-11-12T15:35:03.559Z"
+            },
+            "outreach": null,
+            "recipient": null,
+            "detail": null,
+            "question": null,
+            "built": null,
+            "crm": null,
+            "editOf": null,
+            "script": {
+              "cta": "Trade notes on Lumen Health?",
+              "hook": "A short film for Lumen Health",
+              "pitch": {
+                "points": [
+                  "Ships production agents with evals, not demos",
+                  "Turns messy customer data into working pipelines",
+                  "Explains technical trade-offs to non-engineers"
+                ],
+                "headline": "What I'd build next for Lumen Health"
+              },
+              "proof": [0, 1, 2],
+              "insight": {
+                "why": "I'd want to find out what moves this number next",
+                "factId": "f3"
+              },
+              "noticed": "Lumen leads with “Patient intake that writes itself”"
+            },
+            "scriptMeta": {
+              "model": "deterministic",
+              "rounds": 1,
+              "replaced": [],
+              "violations": [[]],
+              "usedFallback": false
+            },
+            "highlights": {
+              "proof": [
+                {
+                  "label": "open-source AI projects shipped",
+                  "value": "6"
+                },
+                {
+                  "label": "double refunds in a 200-run chaos test",
+                  "value": "0"
+                },
+                {
+                  "label": "Solutions Architect certified",
+                  "value": "AWS"
+                }
+              ],
+              "quote": {
+                "text": "11 minutes saved per visit on documentation",
+                "source": "lumenhealth.example",
+                "caption": "From their homepage"
+              }
+            },
+            "homework": null,
+            "qa": {
+              "fonts": ["Brand Display", "Instrument Sans Fallback", "Instrument Sans Fallback"],
+              "frame": {
+                "top": 0,
+                "margin": 0.1335712599354686
+              },
+              "issues": [],
+              "duration": 29.2
+            },
+            "review": {
+              "ready": false,
+              "count": 3,
+              "scenes": [
+                {
+                  "index": 0,
+                  "kind": "hook",
+                  "name": "The greeting",
+                  "flags": []
+                },
+                {
+                  "index": 1,
+                  "kind": "site",
+                  "name": "Their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 2,
+                  "kind": "insight",
+                  "name": "What they published",
+                  "caption": "From their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 3,
+                  "kind": "pitch",
+                  "name": "What you’d try",
+                  "flags": []
+                },
+                {
+                  "index": 4,
+                  "kind": "proof",
+                  "name": "Your results",
+                  "flags": [
+                    {
+                      "code": "proof_unclear",
+                      "text": "“6 open-source AI projects shipped” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“0 double refunds in a 200-run chaos test” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“AWS Solutions Architect certified” doesn’t say what you did or what changed or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "index": 5,
+                  "kind": "cta",
+                  "name": "The ask",
+                  "flags": []
+                }
+              ],
+              "proof": [0, 1, 2]
+            },
+            "scenes": [
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-0.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-1.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-2.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-3.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-4.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-5.jpg"
+            ],
+            "scenesOnDisk": [
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-0.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-1.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-2.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-3.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-4.jpg",
+              "../media/demo/run_01M7867DHYC6VB3T48FC96D79Z/scene-5.jpg"
+            ],
+            "render": {
+              "ms": 78882,
+              "frames": 876
+            },
+            "steps": [
+              {
+                "key": "research",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 6817,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "homework",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 14,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "script",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 3,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "compose",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 10,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:0",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 8453,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:1",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 25605,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:2",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 39676,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:3",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 55315,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:4",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 66799,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:5",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 79075,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "encode",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 2057,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              }
+            ],
+            "timeline": [
+              {
+                "id": "3",
+                "runId": "run_01M7867DHYC6VB3T48FC96D79Z",
+                "at": "2026-11-12T15:32:38.078Z",
+                "kind": "queued",
+                "message": "run created",
+                "workerId": null
+              },
+              {
+                "id": "4",
+                "runId": "run_01M7867DHYC6VB3T48FC96D79Z",
+                "at": "2026-11-12T15:32:38.087Z",
+                "kind": "claimed",
+                "message": "execution #1 started",
+                "workerId": "vm:1419:jha8"
+              },
+              {
+                "id": "8",
+                "runId": "run_01M7867DHYC6VB3T48FC96D79Z",
+                "at": "2026-11-12T15:34:06.092Z",
+                "kind": "succeeded",
+                "message": "succeeded on execution #1",
+                "workerId": "vm:1419:jha8"
+              }
+            ],
+            "embed": null
+          },
+          "who": {
+            "id": "doing",
+            "label": "People doing the job",
+            "why": "They, and new grads who just landed it, reply most and can refer you.",
+            "ask": "What their first 90 days looked like.",
+            "searches": [
+              {
+                "label": "Forward deployed engineers",
+                "hint": "Doing the work at Lumen Health now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=forward%20deployed%20engineer%20Lumen%20Health&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "Solutions engineers",
+                "hint": "Doing the work at Lumen Health now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=solutions%20engineer%20Lumen%20Health&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "Customer engineers",
+                "hint": "Doing the work at Lumen Health now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=customer%20engineer%20Lumen%20Health&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "New grads",
+                "hint": "Just landed it, and remember how",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=new%20grad%20Lumen%20Health&origin=GLOBAL_SEARCH_HEADER"
+              }
+            ]
+          },
+          "homework": {
+            "title": "Faster claims triage for care teams",
+            "date": "2026-10-28"
+          }
+        },
+        {
+          "film": {
+            "id": "run_01M7867DJCJYJ15ZF1DH5662E9",
+            "status": "succeeded",
+            "url": "https://parcelpine.example/",
+            "format": "square",
+            "batch": null,
+            "ref": null,
+            "sender": "Alex Rivera",
+            "pitch": null,
+            "progress": null,
+            "attempts": 1,
+            "error": null,
+            "errorCode": null,
+            "createdAt": "2026-11-12T15:32:38.091Z",
+            "completedAt": "2026-11-12T15:35:02.969Z",
+            "company": "Parcelpine",
+            "host": "parcelpine.example",
+            "durationSec": 29.2,
+            "files": {
+              "film": "/v1/films/run_01M7867DJCJYJ15ZF1DH5662E9/files/film-square.mp4",
+              "poster": "/v1/films/run_01M7867DJCJYJ15ZF1DH5662E9/files/poster.jpg",
+              "gif": "/v1/films/run_01M7867DJCJYJ15ZF1DH5662E9/files/preview.gif",
+              "sheet": "/v1/films/run_01M7867DJCJYJ15ZF1DH5662E9/files/contact-sheet.jpg"
+            },
+            "share": "https://tiwaker9404.github.io/coldopen/media/demo/run_01M7867DJCJYJ15ZF1DH5662E9",
+            "job": null,
+            "views": {
+              "opens": 1,
+              "viewers": 1,
+              "plays": 1,
+              "finishes": 0,
+              "clicks": 0,
+              "bestSeconds": 14,
+              "firstPlayAt": "2026-11-12T15:35:03.562Z",
+              "lastSeen": "2026-11-12T15:35:03.570Z"
+            },
+            "outreach": null,
+            "recipient": {
+              "name": "Dana Okafor"
+            },
+            "detail": "I tried a size swap in the Parcelpine demo store and the bonus credit showed up first",
+            "question": "Do most brands turn on bonus credit for every exchange, or only some products?",
+            "built": null,
+            "crm": null,
+            "editOf": null,
+            "script": {
+              "cta": "Up for a short chat about Parcelpine's returns?",
+              "hook": "For the people building Parcelpine",
+              "pitch": {
+                "points": [
+                  "Ships production agents with evals, not demos",
+                  "Turns messy customer data into working pipelines",
+                  "Explains technical trade-offs to non-engineers"
+                ],
+                "headline": "Where I'd take Parcelpine's returns next"
+              },
+              "proof": [0, 1, 2],
+              "insight": {
+                "why": "I'd build something small to push this number further",
+                "factId": "f3"
+              },
+              "noticed": "Parcelpine leads with “Returns that keep the customer”"
+            },
+            "scriptMeta": {
+              "model": "deterministic",
+              "rounds": 1,
+              "replaced": [],
+              "violations": [[]],
+              "usedFallback": false
+            },
+            "highlights": {
+              "proof": [
+                {
+                  "label": "open-source AI projects shipped",
+                  "value": "6"
+                },
+                {
+                  "label": "double refunds in a 200-run chaos test",
+                  "value": "0"
+                },
+                {
+                  "label": "Solutions Architect certified",
+                  "value": "AWS"
+                }
+              ],
+              "quote": {
+                "text": "61% of returns become exchanges or store credit",
+                "source": "parcelpine.example",
+                "caption": "From their homepage"
+              }
+            },
+            "homework": null,
+            "qa": {
+              "fonts": [
+                "Brand Display",
+                "Brand Body",
+                "Instrument Sans Fallback",
+                "Instrument Sans Fallback"
+              ],
+              "frame": {
+                "top": 0,
+                "margin": 0.08209626137484925
+              },
+              "issues": [],
+              "duration": 29.2
+            },
+            "review": {
+              "ready": false,
+              "count": 6,
+              "scenes": [
+                {
+                  "index": 0,
+                  "kind": "hook",
+                  "name": "The greeting",
+                  "flags": []
+                },
+                {
+                  "index": 1,
+                  "kind": "site",
+                  "name": "Their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 2,
+                  "kind": "insight",
+                  "name": "What they published",
+                  "caption": "From their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 3,
+                  "kind": "pitch",
+                  "name": "What you’d try",
+                  "flags": [
+                    {
+                      "code": "templated_line",
+                      "text": "A point is the same in 2 of your recent films, so it can read like a template.",
+                      "fix": {
+                        "kind": "edit",
+                        "label": "Edit this line",
+                        "line": "points"
+                      }
+                    },
+                    {
+                      "code": "templated_line",
+                      "text": "A point is the same in 2 of your recent films, so it can read like a template.",
+                      "fix": {
+                        "kind": "edit",
+                        "label": "Edit this line",
+                        "line": "points"
+                      }
+                    },
+                    {
+                      "code": "templated_line",
+                      "text": "A point is the same in 2 of your recent films, so it can read like a template.",
+                      "fix": {
+                        "kind": "edit",
+                        "label": "Edit this line",
+                        "line": "points"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "index": 4,
+                  "kind": "proof",
+                  "name": "Your results",
+                  "flags": [
+                    {
+                      "code": "proof_unclear",
+                      "text": "“6 open-source AI projects shipped” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“0 double refunds in a 200-run chaos test” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“AWS Solutions Architect certified” doesn’t say what you did or what changed or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "index": 5,
+                  "kind": "cta",
+                  "name": "The ask",
+                  "flags": []
+                }
+              ],
+              "proof": [0, 1, 2]
+            },
+            "scenes": [
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-0.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-1.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-2.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-3.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-4.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-5.jpg"
+            ],
+            "scenesOnDisk": [
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-0.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-1.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-2.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-3.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-4.jpg",
+              "../media/demo/run_01M7867DJCJYJ15ZF1DH5662E9/scene-5.jpg"
+            ],
+            "render": {
+              "ms": 49705,
+              "frames": 876
+            },
+            "steps": [
+              {
+                "key": "research",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 5765,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "homework",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 16,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "script",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 1,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "compose",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 9,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:0",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 5571,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:1",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 15809,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:2",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 24756,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:3",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 34492,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:4",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 42264,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:5",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 49885,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "encode",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 1655,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              }
+            ],
+            "timeline": [
+              {
+                "id": "5",
+                "runId": "run_01M7867DJCJYJ15ZF1DH5662E9",
+                "at": "2026-11-12T15:32:38.091Z",
+                "kind": "queued",
+                "message": "run created",
+                "workerId": null
+              },
+              {
+                "id": "7",
+                "runId": "run_01M7867DJCJYJ15ZF1DH5662E9",
+                "at": "2026-11-12T15:34:05.569Z",
+                "kind": "claimed",
+                "message": "execution #1 started",
+                "workerId": "vm:1419:jha8"
+              },
+              {
+                "id": "9",
+                "runId": "run_01M7867DJCJYJ15ZF1DH5662E9",
+                "at": "2026-11-12T15:35:02.969Z",
+                "kind": "succeeded",
+                "message": "succeeded on execution #1",
+                "workerId": "vm:1419:jha8"
+              }
+            ],
+            "embed": null
+          },
+          "who": {
+            "id": "doing",
+            "label": "People doing the job",
+            "why": "They, and new grads who just landed it, reply most and can refer you.",
+            "ask": "What their first 90 days looked like.",
+            "searches": [
+              {
+                "label": "Forward deployed engineers",
+                "hint": "Doing the work at Parcelpine now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=forward%20deployed%20engineer%20Parcelpine&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "Solutions engineers",
+                "hint": "Doing the work at Parcelpine now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=solutions%20engineer%20Parcelpine&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "Customer engineers",
+                "hint": "Doing the work at Parcelpine now",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=customer%20engineer%20Parcelpine&origin=GLOBAL_SEARCH_HEADER"
+              },
+              {
+                "label": "New grads",
+                "hint": "Just landed it, and remember how",
+                "url": "https://www.linkedin.com/search/results/people/?keywords=new%20grad%20Parcelpine&origin=GLOBAL_SEARCH_HEADER"
+              }
+            ]
+          },
+          "homework": null
+        }
+      ],
+      "needsLook": [
+        {
+          "film": {
+            "id": "run_01M7867DHFJ9S1TEV99GXH8KSQ",
+            "status": "succeeded",
+            "url": "https://northwindfreight.example/",
+            "format": "square",
+            "batch": null,
+            "ref": null,
+            "sender": "Alex Rivera",
+            "pitch": null,
+            "progress": null,
+            "attempts": 1,
+            "error": null,
+            "errorCode": null,
+            "createdAt": "2026-11-12T15:32:38.062Z",
+            "completedAt": "2026-11-12T15:34:05.564Z",
+            "company": "Northwind Freight",
+            "host": "northwindfreight.example",
+            "durationSec": 29.2,
+            "files": {
+              "film": "/v1/films/run_01M7867DHFJ9S1TEV99GXH8KSQ/files/film-square.mp4",
+              "poster": "/v1/films/run_01M7867DHFJ9S1TEV99GXH8KSQ/files/poster.jpg",
+              "gif": "/v1/films/run_01M7867DHFJ9S1TEV99GXH8KSQ/files/preview.gif",
+              "sheet": "/v1/films/run_01M7867DHFJ9S1TEV99GXH8KSQ/files/contact-sheet.jpg"
+            },
+            "share": "https://tiwaker9404.github.io/coldopen/media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ",
+            "job": null,
+            "views": {
+              "opens": 2,
+              "viewers": 2,
+              "plays": 2,
+              "finishes": 2,
+              "clicks": 1,
+              "bestSeconds": 29.2,
+              "firstPlayAt": "2026-11-12T15:35:03.512Z",
+              "lastSeen": "2026-11-12T15:35:03.543Z"
+            },
+            "outreach": null,
+            "recipient": {
+              "name": "Priya Shah"
+            },
+            "detail": "I tracked a test pallet through Northwind and the late-risk flag showed up a day early",
+            "question": "How do most shippers act on a late-risk flag today?",
+            "built": null,
+            "crm": null,
+            "editOf": null,
+            "script": {
+              "cta": "Could we talk about Northwind Freight's shippers sometime?",
+              "hook": "Made for the Northwind Freight team",
+              "pitch": {
+                "points": [
+                  "Ships production agents with evals, not demos",
+                  "Turns messy customer data into working pipelines",
+                  "Explains technical trade-offs to non-engineers"
+                ],
+                "headline": "What I'd try first with Northwind Freight's shippers"
+              },
+              "proof": [0, 1, 2],
+              "insight": {
+                "why": "I'd start by asking which customers move this number most",
+                "factId": "f3"
+              },
+              "noticed": "Northwind leads with “Every pallet, visible before it's late”"
+            },
+            "scriptMeta": {
+              "model": "deterministic",
+              "rounds": 1,
+              "replaced": [],
+              "violations": [[]],
+              "usedFallback": false
+            },
+            "highlights": {
+              "proof": [
+                {
+                  "label": "open-source AI projects shipped",
+                  "value": "6"
+                },
+                {
+                  "label": "double refunds in a 200-run chaos test",
+                  "value": "0"
+                },
+                {
+                  "label": "Solutions Architect certified",
+                  "value": "AWS"
+                }
+              ],
+              "quote": {
+                "text": "1,400+ shippers track freight on Northwind",
+                "source": "northwindfreight.example",
+                "caption": "From their homepage"
+              }
+            },
+            "homework": null,
+            "qa": {
+              "fonts": [
+                "Brand Display",
+                "Brand Body",
+                "Fraunces Fallback",
+                "Instrument Sans Fallback"
+              ],
+              "frame": {
+                "top": 0,
+                "margin": 0.0684723344845323
+              },
+              "issues": [],
+              "duration": 29.2
+            },
+            "review": {
+              "ready": false,
+              "count": 3,
+              "scenes": [
+                {
+                  "index": 0,
+                  "kind": "hook",
+                  "name": "The greeting",
+                  "flags": []
+                },
+                {
+                  "index": 1,
+                  "kind": "site",
+                  "name": "Their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 2,
+                  "kind": "insight",
+                  "name": "What they published",
+                  "caption": "From their homepage",
+                  "flags": []
+                },
+                {
+                  "index": 3,
+                  "kind": "pitch",
+                  "name": "What you’d try",
+                  "flags": []
+                },
+                {
+                  "index": 4,
+                  "kind": "proof",
+                  "name": "Your results",
+                  "flags": [
+                    {
+                      "code": "proof_unclear",
+                      "text": "“6 open-source AI projects shipped” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“0 double refunds in a 200-run chaos test” doesn’t say what you did or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    },
+                    {
+                      "code": "proof_unclear",
+                      "text": "“AWS Solutions Architect certified” doesn’t say what you did or what changed or where it happened, so a stranger can’t tell what it means.",
+                      "fix": {
+                        "kind": "none",
+                        "label": "Add “What you did” and where to this result in your profile"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "index": 5,
+                  "kind": "cta",
+                  "name": "The ask",
+                  "flags": []
+                }
+              ],
+              "proof": [0, 1, 2]
+            },
+            "scenes": [
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-0.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-1.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-2.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-3.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-4.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-5.jpg"
+            ],
+            "scenesOnDisk": [
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-0.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-1.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-2.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-3.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-4.jpg",
+              "../media/demo/run_01M7867DHFJ9S1TEV99GXH8KSQ/scene-5.jpg"
+            ],
+            "render": {
+              "ms": 78846,
+              "frames": 876
+            },
+            "steps": [
+              {
+                "key": "research",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 6145,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "homework",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 40,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "script",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 13,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "compose",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 14,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:0",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 8739,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:1",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 25891,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:2",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 39690,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:3",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 55258,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:4",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 67015,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "render:5",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 79043,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              },
+              {
+                "key": "encode",
+                "kind": "step",
+                "status": "completed",
+                "durationMs": 2175,
+                "replays": 0,
+                "attempts": 1,
+                "error": null
+              }
+            ],
+            "timeline": [
+              {
+                "id": "1",
+                "runId": "run_01M7867DHFJ9S1TEV99GXH8KSQ",
+                "at": "2026-11-12T15:32:38.062Z",
+                "kind": "queued",
+                "message": "run created",
+                "workerId": null
+              },
+              {
+                "id": "2",
+                "runId": "run_01M7867DHFJ9S1TEV99GXH8KSQ",
+                "at": "2026-11-12T15:32:38.071Z",
+                "kind": "claimed",
+                "message": "execution #1 started",
+                "workerId": "vm:1419:jha8"
+              },
+              {
+                "id": "6",
+                "runId": "run_01M7867DHFJ9S1TEV99GXH8KSQ",
+                "at": "2026-11-12T15:34:05.564Z",
+                "kind": "succeeded",
+                "message": "succeeded on execution #1",
+                "workerId": "vm:1419:jha8"
+              }
+            ],
+            "embed": null
+          },
+          "flags": [
+            {
+              "code": "proof_unclear",
+              "text": "“6 open-source AI projects shipped” doesn’t say what you did or where it happened, so a stranger can’t tell what it means."
+            },
+            {
+              "code": "proof_unclear",
+              "text": "“0 double refunds in a 200-run chaos test” doesn’t say what you did or where it happened, so a stranger can’t tell what it means."
+            },
+            {
+              "code": "proof_unclear",
+              "text": "“AWS Solutions Architect certified” doesn’t say what you did or what changed or where it happened, so a stranger can’t tell what it means."
+            }
+          ]
+        }
+      ],
+      "made": 3,
+      "perDay": 20,
+      "sentThisWeek": 2
     }
   }
 }

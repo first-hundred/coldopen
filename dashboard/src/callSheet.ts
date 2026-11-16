@@ -11,7 +11,7 @@ export interface Waiting {
   warm: number
   /** films queued or rendering */
   rolling: number
-  /** films made and not yet sent */
+  /** today's films that passed review, waiting to send (/v1/autopilot/queue's `ready`) */
   ready: number
   /** whether the sender has made any film yet */
   anyFilms: boolean
@@ -22,13 +22,13 @@ export const dueCount = (w: Pick<Waiting, 'followUps' | 'warm'>) => w.followUps 
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
-/** The call sheet's one line, most urgent first */
+/** The call sheet's one line, most urgent first: today's new films, then what's due, then what's rolling */
 export function callLine(w: Waiting): string {
   const parts = [
+    w.ready > 0 && `${plural(w.ready, 'film ready', 'films ready')}`,
     w.followUps > 0 && `${plural(w.followUps, 'follow-up', 'follow-ups')} due`,
     w.warm > 0 && `${plural(w.warm, 'warm-lead touch', 'warm-lead touches')} due`,
     w.rolling > 0 && `${plural(w.rolling, 'film', 'films')} in production`,
-    w.ready > 0 && `${w.ready} ready to send`,
   ].filter(Boolean) as string[]
   if (parts.length) return `${parts.join(', ')}.`
   return w.anyFilms

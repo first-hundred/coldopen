@@ -14,7 +14,14 @@ describe("Today's call sheet and the count on its tab", () => {
     expect(callLine({ ...none, warm: 1 })).toBe('1 warm-lead touch due.')
     expect(callLine({ ...none, warm: 2 })).not.toMatch(/Nothing waiting/)
     expect(callLine({ ...none, followUps: 1, warm: 2, ready: 1 })).toBe(
-      '1 follow-up due, 2 warm-lead touches due, 1 ready to send.',
+      '1 film ready, 1 follow-up due, 2 warm-lead touches due.',
+    )
+  })
+
+  it("puts today's ready films first, most urgent after", () => {
+    expect(callLine({ ...none, ready: 3 })).toBe('3 films ready.')
+    expect(callLine({ ...none, ready: 3, followUps: 2, warm: 1 })).toBe(
+      '3 films ready, 2 follow-ups due, 1 warm-lead touch due.',
     )
   })
 

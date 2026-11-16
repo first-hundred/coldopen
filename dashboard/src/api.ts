@@ -251,9 +251,16 @@ export function ago(iso: string, now = Date.now()): string {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-import type { Review } from '../../src/script/review.ts'
+import type { FlagCode, Review } from '../../src/script/review.ts'
 
-export type { Fix, Flag, Review, ReviewFact, ReviewScene } from '../../src/script/review.ts'
+export type {
+  Fix,
+  Flag,
+  FlagCode,
+  Review,
+  ReviewFact,
+  ReviewScene,
+} from '../../src/script/review.ts'
 
 export interface FilmDetail extends Film {
   script: {
@@ -373,6 +380,31 @@ export interface AutopilotToday {
   madeToday: number
   picks: { site: string; company: string; reasons: string[] }[]
   skipped: { site: string; why: string }[]
+}
+
+/** a film on Today's "ready to send" list: passed review, with everything it takes to send it */
+export interface AutopilotReady {
+  film: Film
+  /** the first group to reach, from GET /v1/films/:id/people; null when there's no one to find */
+  who: PeopleGroup | null
+  /** the newest thing in its homework, when it has one */
+  homework: { title: string; date: string | null } | null
+}
+
+/** a film that needs a look before it can go out, with the flags GET /v1/films/:id/review gives */
+export interface AutopilotNeedsLook {
+  film: Film
+  flags: { code: FlagCode; text: string }[]
+}
+
+/** GET /v1/autopilot/queue: today's new films, ready to send or needing a look first */
+export interface AutopilotQueue {
+  ready: AutopilotReady[]
+  needsLook: AutopilotNeedsLook[]
+  made: number
+  perDay: number
+  /** films marked sent since Monday: a stand-in for LinkedIn's weekly connection-request limit */
+  sentThisWeek: number
 }
 
 export interface Me {

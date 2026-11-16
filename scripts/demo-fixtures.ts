@@ -234,6 +234,9 @@ const routes: string[] = [
   '/v1/warm',
   '/v1/startups?since=2023&maxTeam=50&hiring=any&limit=30&offset=0',
   '/v1/startups?hiring=yc-only&limit=1',
+  // the demo account's films are all marked sent, so this records as empty; fixtures.json's
+  // answer is hand-built from the plan's films instead, to show Today's ready-to-send queue
+  '/v1/autopilot/queue',
   ...ids.flatMap((id) =>
     ['', '/messages', '/views', '/people', '/brief'].map((s) => `/v1/films/${id}${s}`),
   ),
