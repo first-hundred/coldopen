@@ -1,0 +1,10 @@
+{
+  "url": "https://api.github.com/repos/alex-rivera/integration-triage/pulls/42",
+  "html_url": "https://github.com/alex-rivera/integration-triage/pull/42",
+  "number": 42,
+  "state": "closed",
+  "title": "Add retry with backoff for flaky upstream calls",
+  "merged": true,
+  "merged_at": "2026-10-02T14:21:00Z",
+  "base": { "repo": { "full_name": "alex-rivera/integration-triage" } }
+}

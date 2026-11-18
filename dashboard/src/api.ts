@@ -310,8 +310,16 @@ export interface FilmDetail extends Film {
 
 export interface ProfileData {
   preset: 'sales' | 'candidate' | 'recruiter'
-  /** linkedin and photo: shown on a job seeker's film page, so they know who sent it */
-  sender: { name: string; company?: string; role?: string; linkedin?: string; photo?: string }
+  /** linkedin, photo and clip: shown on a job seeker's film page, so they know who sent it */
+  sender: {
+    name: string
+    company?: string
+    role?: string
+    linkedin?: string
+    photo?: string
+    /** a short clip of them saying hi, played silent in the film */
+    clip?: { url: string; caption?: string }
+  }
   /** recruiter films: the candidate it's made for */
   recipient?: { name: string; role?: string }
   offer: string
@@ -322,9 +330,21 @@ export interface ProfileData {
   /** skills and tools, counted by Fit check */
   skills?: string[]
   /** things you built: each film shows the one closest to the company */
-  projects?: { name: string; url: string; line: string }[]
+  projects?: {
+    name: string
+    url: string
+    line: string
+    /** a screen recording of this project */
+    clip?: string
+    /** set by the server from GitHub on save, never by the client */
+    pr?: { repo: string; merged: boolean }
+  }[]
   /** the tool you built that made this film, so messages and the end card can say so */
   creator?: { name: string; url: string; line: string }
+  /** one line someone said about their work */
+  quote?: { text: string; who: string; role: string }
+  /** one thing about them that isn't on the résumé */
+  aside?: string
   /** schools, for alumni at the companies you film */
   schools?: string[]
   color?: string

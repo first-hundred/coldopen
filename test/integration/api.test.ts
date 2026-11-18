@@ -219,6 +219,151 @@ describe('auth and profiles', () => {
   })
 })
 
+describe('showing your work: a clip, a recording, and a pull request read from GitHub', () => {
+  const githubFixture = (name: string) =>
+    readFileSync(join(import.meta.dirname, '../../fixtures/github', name), 'utf8')
+  const mp4 = (() => {
+    const buf = Buffer.alloc(64)
+    buf.writeUInt32BE(64, 0)
+    buf.write('ftyp', 4, 'ascii')
+    return buf
+  })()
+  const mediaFetch = (async (input: string | URL | Request) => {
+    const url = String(input)
+    if (url === 'https://alex-rivera.github.io/clip.mp4')
+      return new Response(mp4, { status: 200, headers: { 'content-length': String(mp4.length) } })
+    if (url === 'https://drive.example.com/share/xyz')
+      return new Response('<!doctype html><html></html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      })
+    if (url === 'https://api.github.com/repos/alex-rivera/integration-triage/pulls/42')
+      return new Response(githubFixture('pr-merged.json'), { status: 200 })
+    return new Response('not found', { status: 404 })
+  }) as typeof fetch
+
+  let media: Awaited<ReturnType<typeof buildApi>>
+  const mediaAuth = { authorization: 'Bearer k2' }
+  beforeAll(async () => {
+    media = await buildApi({
+      sql,
+      cfg: testConfig({
+        API_KEYS: 'k2',
+        FILMS_DIR: tmp('media-films-'),
+        PUBLIC_URL: 'https://films2.example.com',
+      }),
+      log,
+      slack: null,
+      mediaFetch,
+    })
+  })
+  // a private install has one owner ("team"): these profiles would otherwise become the
+  // newest one, picked implicitly by other tests' films
+  afterAll(async () => {
+    await sql`delete from profiles where id in ('alex', 'alex2', 'alex3', 'alex4')`
+    await media?.close()
+  })
+
+  it('saves a profile with a clip, a quote and an aside', async () => {
+    const base = profile('candidate')
+    const data = {
+      ...base,
+      sender: {
+        ...base.sender,
+        clip: { url: 'https://alex-rivera.github.io/clip.mp4', caption: "Hi, I'm Alex" },
+      },
+      quote: {
+        text: 'Shipped the integration faster than anyone we had worked with',
+        who: 'Jamie Park',
+        role: 'Engineering manager, Acme',
+      },
+      aside: 'I restore old motorcycles on weekends',
+    }
+    const res = await media.inject({
+      method: 'PUT',
+      url: '/v1/profiles/alex',
+      headers: mediaAuth,
+      payload: { name: 'Alex', data },
+    })
+    expect(res.statusCode, res.body).toBe(200)
+    const saved = res.json().data
+    expect(saved.sender.clip).toEqual(data.sender.clip)
+    expect(saved.quote).toEqual(data.quote)
+    expect(saved.aside).toBe(data.aside)
+  })
+
+  it("refuses a clip link that isn't a video, naming the field", async () => {
+    const base = profile('candidate')
+    const data = {
+      ...base,
+      sender: { ...base.sender, clip: { url: 'https://drive.example.com/share/xyz' } },
+    }
+    const res = await media.inject({
+      method: 'PUT',
+      url: '/v1/profiles/alex2',
+      headers: mediaAuth,
+      payload: { name: 'Alex 2', data },
+    })
+    expect(res.statusCode).toBe(400)
+    const { error } = res.json()
+    expect(error.code).toBe('invalid_request')
+    expect(error.fields).toEqual([
+      { path: 'sender.clip.url', message: expect.stringContaining('opens a web page') },
+    ])
+  })
+
+  it("sets a project's pr from GitHub, never from the request", async () => {
+    const base = profile('candidate')
+    const data = {
+      ...base,
+      projects: [
+        {
+          name: 'integration-triage',
+          url: 'https://github.com/alex-rivera/integration-triage/pull/42',
+          line: 'Diagnoses failing API calls from logs and drafts the reply',
+          // a claim the client shouldn't be able to make: the server discards and recomputes it
+          pr: { repo: 'someone-else/else', merged: false },
+        },
+      ],
+    }
+    const res = await media.inject({
+      method: 'PUT',
+      url: '/v1/profiles/alex3',
+      headers: mediaAuth,
+      payload: { name: 'Alex 3', data },
+    })
+    expect(res.statusCode, res.body).toBe(200)
+    expect(res.json().data.projects[0].pr).toEqual({
+      repo: 'alex-rivera/integration-triage',
+      merged: true,
+    })
+    expect(res.json().note).toBeUndefined()
+  })
+
+  it("leaves pr off and adds a note when GitHub can't be reached", async () => {
+    const base = profile('candidate')
+    const data = {
+      ...base,
+      projects: [
+        {
+          name: 'other',
+          url: 'https://github.com/alex-rivera/other/pull/9',
+          line: 'Something else they built',
+        },
+      ],
+    }
+    const res = await media.inject({
+      method: 'PUT',
+      url: '/v1/profiles/alex4',
+      headers: mediaAuth,
+      payload: { name: 'Alex 4', data },
+    })
+    expect(res.statusCode, res.body).toBe(200)
+    expect(res.json().data.projects[0].pr).toBeUndefined()
+    expect(res.json().note).toBe("Couldn't check the pull request; it'll show as a link")
+  })
+})
+
 describe('deleting a profile', () => {
   // the films below are made from the most recently saved profile, so leave the list as it was
   afterAll(async () => {

@@ -29,6 +29,21 @@ export const ProfileSchema = z.object({
       .string()
       .regex(/^https:\/\/\S{4,300}$/, 'a photo link starts with https://')
       .optional(),
+    /**
+     * a short clip of the sender saying hi (2-15s, played silent): a job seeker's face, not
+     * just their name, on the film's page. Checked against the SSRF guard and sniffed by its
+     * first bytes (see src/profile/media.ts), never trusted by content-type alone.
+     */
+    clip: z
+      .object({
+        url: z.string().regex(/^https:\/\/\S{4,300}$/, 'a clip link starts with https://'),
+        caption: z
+          .string()
+          .trim()
+          .refine((s) => s.split(/\s+/).filter(Boolean).length <= 8, 'a caption is at most 8 words')
+          .optional(),
+      })
+      .optional(),
   }),
   /** recruiter films: the candidate the film is made for */
   recipient: z
@@ -75,6 +90,22 @@ export const ProfileSchema = z.object({
         url: z.string().regex(/^https:\/\/\S{4,300}$/, 'a project link starts with https://'),
         /** one line on what it does, in plain words */
         line: z.string().trim().min(3).max(120),
+        /** a screen recording of this project, 90s or under, so a stranger sees it run */
+        clip: z
+          .string()
+          .regex(/^https:\/\/\S{4,300}$/, 'a recording link starts with https://')
+          .optional(),
+        /**
+         * whether the project's pull request merged, read from GitHub on save
+         * (src/profile/media.ts's prState). The server sets this; a client's own value is
+         * always discarded and recomputed, so it's never a claim someone could type in.
+         */
+        pr: z
+          .object({
+            repo: z.string().regex(/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\/[A-Za-z0-9._-]+$/),
+            merged: z.boolean(),
+          })
+          .optional(),
       }),
     )
     .max(8)
@@ -93,6 +124,16 @@ export const ProfileSchema = z.object({
       line: z.string().trim().min(3).max(120),
     })
     .optional(),
+  /** one line someone said about their work: a stranger's word for it, not the sender's own */
+  quote: z
+    .object({
+      text: z.string().trim().min(10).max(140),
+      who: z.string().trim().min(2).max(60),
+      role: z.string().trim().min(2).max(80),
+    })
+    .optional(),
+  /** one thing about them that isn't on the résumé, for the film's end card */
+  aside: z.string().trim().min(3).max(60).optional(),
   /** schools they went to ("Duke University"): who to reach includes alumni at the company */
   schools: z.array(z.string().trim().min(2).max(60)).max(4).optional(),
   /** skills and tools they have, in their words ("Kubernetes", "Salesforce"): counted by Fit check */

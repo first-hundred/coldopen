@@ -44,8 +44,10 @@ describe('readableProof: does a stranger follow this card?', () => {
   })
 
   it('has_result: the label says what the number counts, whole and plain', () => {
+    // "six" has no digit: has_result and the narrower value_has_number both catch it
     expect(failing({ ...good, value: 'six', label: 'faster' }, 'Made it faster.')).toEqual([
       'has_result',
+      'value_has_number',
     ])
     expect(
       failing(
@@ -137,6 +139,15 @@ describe('readableProof: does a stranger follow this card?', () => {
         label: `daily client data sync, from 6 hours to 45 minutes ${'x'.repeat(10)}`,
       }),
     ).toEqual(['within_limits'])
+  })
+
+  it('value_has_number: the value leads with a number ("Weekly" fails)', () => {
+    const p = { ...good, value: 'Weekly', label: 'client syncs run' }
+    expect(failing(p, 'Ran weekly client syncs.')).toEqual(['has_result', 'value_has_number'])
+    expect(readableProof(p, 'Ran weekly client syncs.').problems.join()).toMatch(
+      /lead with a number, for example "52 releases"/,
+    )
+    expect(failing(good)).not.toContain('value_has_number')
   })
 })
 

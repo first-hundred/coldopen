@@ -298,3 +298,95 @@ describe('who sent it: your LinkedIn and photo, for your film page', () => {
     ).toBe(false)
   })
 })
+
+describe('showing your work: a clip of you, a recording, a quote and one thing about you', () => {
+  // a profile as GET /v1/profiles returned it before these fields existed
+  const saved = JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../fixtures/profiles/saved-candidate.json'), 'utf8'),
+  ) as { name: string; data: ProfileData }
+  const clip = { url: 'https://alex-rivera.github.io/clip.mp4', caption: "Hi, I'm Alex" }
+  const quote = {
+    text: 'Shipped the integration faster than anyone we had worked with',
+    who: 'Jamie Park',
+    role: 'Engineering manager, Acme',
+  }
+
+  it('a profile saved before these fields existed round-trips unchanged', () => {
+    expect(ProfileSchema.safeParse(saved.data).success).toBe(true)
+    const r = validate(saved.data, saved.name)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(JSON.parse(JSON.stringify(r.body.data))).toEqual(saved.data)
+  })
+
+  it('a clip of you, a project recording, a quote and an aside round-trip', () => {
+    const data: ProfileData = {
+      ...saved.data,
+      sender: { ...saved.data.sender, clip },
+      projects: saved.data.projects!.map((p) => ({
+        ...p,
+        clip: 'https://alex-rivera.github.io/demo.mp4',
+      })),
+      quote,
+      aside: 'I restore old motorcycles on weekends',
+    }
+    const r = validate(data, saved.name)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(JSON.parse(JSON.stringify(r.body.data))).toEqual(data)
+    expect(ProfileSchema.parse(data)).toEqual(data)
+  })
+
+  it('a project keeps a pr the server set, untouched by the form', () => {
+    const data: ProfileData = {
+      ...saved.data,
+      projects: saved.data.projects!.map((p) => ({
+        ...p,
+        pr: { repo: 'alex-rivera/integration-triage', merged: true },
+      })),
+    }
+    const r = validate(data, saved.name)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(JSON.parse(JSON.stringify(r.body.data))).toEqual(data)
+  })
+
+  it('leaves the clip, quote and aside out when blank', () => {
+    const r = validate(
+      {
+        ...saved.data,
+        sender: { ...saved.data.sender, clip: { url: '', caption: '' } },
+        quote: { text: '', who: '', role: '' },
+        aside: '',
+      },
+      saved.name,
+    )
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      const json = JSON.parse(JSON.stringify(r.body.data))
+      expect('clip' in json.sender).toBe(false)
+      expect('quote' in json).toBe(false)
+      expect('aside' in json).toBe(false)
+    }
+  })
+
+  it('says a caption over 8 words is not allowed', () => {
+    const f = fieldsOf(
+      {
+        ...saved.data,
+        sender: {
+          ...saved.data.sender,
+          clip: { url: clip.url, caption: 'one two three four five six seven eight nine' },
+        },
+      },
+      saved.name,
+    )
+    expect(f['sender.clip.caption']).toBeDefined()
+  })
+
+  it('a quote half filled is pointed at, not dropped', () => {
+    const f = fieldsOf(
+      { ...saved.data, quote: { text: '', who: 'Jamie Park', role: '' } },
+      saved.name,
+    )
+    expect(f['quote.text']).toBe('Add what they said')
+    expect(f['quote.role']).toBe('Add their role')
+  })
+})

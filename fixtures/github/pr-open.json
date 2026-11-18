@@ -1,0 +1,10 @@
+{
+  "url": "https://api.github.com/repos/alex-rivera/integration-triage/pulls/51",
+  "html_url": "https://github.com/alex-rivera/integration-triage/pull/51",
+  "number": 51,
+  "state": "open",
+  "title": "Draft: batch the triage queue instead of one call per ticket",
+  "merged": false,
+  "merged_at": null,
+  "base": { "repo": { "full_name": "alex-rivera/integration-triage" } }
+}

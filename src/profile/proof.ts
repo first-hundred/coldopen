@@ -23,6 +23,7 @@ export const CHECKS = [
   'numbers_from_resume',
   'no_excluded_employer',
   'within_limits',
+  'value_has_number',
 ] as const
 export type ProofCheck = (typeof CHECKS)[number]
 
@@ -534,9 +535,11 @@ export function readableProof(
 
   const labelWords = label.split(/\s+/).filter(Boolean)
   const labelPadded = padded.filter((x) => label.toLowerCase().includes(x))
+  const hasNumber = /\d/.test(p.value)
   const hasResult =
-    /\d/.test(p.value) && labelWords.length >= 2 && !DANGLING.test(label) && !labelPadded.length
-  if (!/\d/.test(p.value)) problems.push(`value "${p.value}" has no number`)
+    hasNumber && labelWords.length >= 2 && !DANGLING.test(label) && !labelPadded.length
+  if (!hasNumber)
+    problems.push(`value "${p.value}" has no number: lead with a number, for example "52 releases"`)
   if (labelWords.length < 2) problems.push(`label "${label}" should say what the number counts`)
   if (DANGLING.test(label)) problems.push(`label "${label}" stops mid-phrase`)
   if (labelPadded.length) problems.push(`label uses résumé padding ("${labelPadded.join('", "')}")`)
@@ -595,6 +598,7 @@ export function readableProof(
     numbers_from_resume: stray.length === 0,
     no_excluded_employer: !named.length && !placeholder,
     within_limits: limits,
+    value_has_number: hasNumber,
   }
   return { ok: CHECKS.every((c) => checks[c]), checks, problems }
 }

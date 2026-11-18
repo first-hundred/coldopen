@@ -136,6 +136,9 @@ export function ProfileEditor({
   const creator = d.creator ?? { name: '', url: '', line: '' }
   const setCreator = (key: keyof typeof creator, value: string) =>
     set({ creator: { ...creator, [key]: value } }, `creator.${key}`)
+  const quote = d.quote ?? { text: '', who: '', role: '' }
+  const setQuote = (key: keyof typeof quote, value: string) =>
+    set({ quote: { ...quote, [key]: value } }, `quote.${key}`)
   const setProof = (i: number, key: keyof ProfileData['proof'][number], value: string) =>
     set(
       { proof: d.proof.map((x, j) => (j === i ? { ...x, [key]: value } : x)) },
@@ -278,6 +281,50 @@ export function ProfileEditor({
                       placeholder="https://avatars.githubusercontent.com/u/…"
                       inputMode="url"
                       onValue={(v) => set({ sender: { ...d.sender, photo: v } }, 'sender.photo')}
+                    />
+                  </label>
+                </div>
+                <p className="hint">
+                  A short clip of you saying hi (2–15s, played silent in the film). A direct link to
+                  the video file, not a page that plays it.
+                </p>
+                <div className="pair">
+                  <label htmlFor={fid('sender.clip.url')}>
+                    Clip of you (a link)
+                    <Text
+                      path="sender.clip.url"
+                      error={err('sender.clip.url')}
+                      value={d.sender.clip?.url ?? ''}
+                      placeholder="https://you.github.io/clip.mp4"
+                      inputMode="url"
+                      onValue={(v) =>
+                        set(
+                          { sender: { ...d.sender, clip: { ...d.sender.clip, url: v } } },
+                          'sender.clip.url',
+                        )
+                      }
+                    />
+                  </label>
+                  <label htmlFor={fid('sender.clip.caption')}>
+                    <span>
+                      Caption <small>optional, 8 words or fewer</small>
+                    </span>
+                    <Text
+                      path="sender.clip.caption"
+                      error={err('sender.clip.caption')}
+                      value={d.sender.clip?.caption ?? ''}
+                      placeholder="Hi, I'm Alex"
+                      onValue={(v) =>
+                        set(
+                          {
+                            sender: {
+                              ...d.sender,
+                              clip: { url: d.sender.clip?.url ?? '', caption: v },
+                            },
+                          },
+                          'sender.clip.caption',
+                        )
+                      }
                     />
                   </label>
                 </div>
@@ -494,6 +541,26 @@ export function ProfileEditor({
                     value={x.line}
                     onValue={(v) => setProject(i, 'line', v)}
                   />
+                  <label className="wide" htmlFor={fid(`projects.${i}.clip`)}>
+                    <span>
+                      Recording <small>optional</small>
+                    </span>
+                    <Text
+                      path={`projects.${i}.clip`}
+                      error={err(`projects.${i}.clip`)}
+                      hint={
+                        err(`projects.${i}.clip`)
+                          ? undefined
+                          : 'A short screen recording of it running, 90s or under.'
+                      }
+                      aria-label={`Project ${i + 1}: recording`}
+                      placeholder="https://you.github.io/demo.mp4"
+                      inputMode="url"
+                      value={x.clip ?? ''}
+                      onValue={(v) => setProject(i, 'clip', v)}
+                    />
+                  </label>
+                  {x.pr?.merged && <p className="note">Merged into {x.pr.repo}</p>}
                   <button
                     type="button"
                     className="link wide"
@@ -566,6 +633,59 @@ export function ProfileEditor({
               />
             </div>
           </fieldset>
+
+          {job && (
+            <fieldset>
+              <legend>Show your work</legend>
+              <p className="hint">
+                One line someone said about your work, and one thing about you that isn't on the
+                résumé.
+              </p>
+              <div className="project">
+                <Text
+                  wrap="wide"
+                  path="quote.text"
+                  max={MAX.quoteText}
+                  error={err('quote.text')}
+                  aria-label="Quote: what they said"
+                  placeholder="Shipped the integration faster than anyone we'd worked with"
+                  value={quote.text}
+                  onValue={(v) => setQuote('text', v)}
+                />
+                <Text
+                  path="quote.who"
+                  max={MAX.quoteWho}
+                  error={err('quote.who')}
+                  aria-label="Quote: who said it"
+                  placeholder="Jamie Park"
+                  value={quote.who}
+                  onValue={(v) => setQuote('who', v)}
+                />
+                <Text
+                  path="quote.role"
+                  max={MAX.quoteRole}
+                  error={err('quote.role')}
+                  aria-label="Quote: their role"
+                  placeholder="Engineering manager, Acme"
+                  value={quote.role}
+                  onValue={(v) => setQuote('role', v)}
+                />
+              </div>
+              <label htmlFor={fid('aside')}>
+                <span>
+                  One thing about you <small>optional</small>
+                </span>
+                <Text
+                  path="aside"
+                  max={MAX.aside}
+                  error={err('aside')}
+                  value={d.aside ?? ''}
+                  placeholder="I restore old motorcycles on weekends"
+                  onValue={(v) => set({ aside: v }, 'aside')}
+                />
+              </label>
+            </fieldset>
+          )}
 
           <fieldset>
             <legend>How the film ends</legend>

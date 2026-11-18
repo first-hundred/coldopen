@@ -111,6 +111,7 @@ import {
 import { type ModelMessages, messagesSchemaFor, writeMessages } from '../outreach/writer.ts'
 import { draftProfile } from '../profile/draft.ts'
 import { forSender, makerClaims, NOT_THE_MAKER } from '../profile/maker.ts'
+import { checkClip, isPrUrl, prState } from '../profile/media.ts'
 import { parseResume } from '../profile/parse.ts'
 import { hiringProfile, PitchError, recruiterProfile } from '../profile/pitch.ts'
 import { resumeText } from '../profile/read.ts'
@@ -311,6 +312,8 @@ export interface ApiDeps {
   authFetch?: typeof fetch
   /** for tests: how HubSpot is called (default: its real API) */
   crmFetch?: FetchFn
+  /** for tests: how a profile's clip links and pull requests are checked (default: real fetch) */
+  mediaFetch?: typeof fetch
 }
 
 export async function buildApi({
@@ -323,6 +326,7 @@ export async function buildApi({
   hunterFetch = fetch,
   authFetch,
   crmFetch = fetch,
+  mediaFetch = fetch,
 }: ApiDeps) {
   const filmsDir = resolve(cfg.FILMS_DIR)
   /** a film's file, or null if the id or name would point outside the films folder */
@@ -888,15 +892,50 @@ export async function buildApi({
             fields: claims.map((path) => ({ path, message: NOT_THE_MAKER })),
           },
         })
+
+      const data = req.body.data
+      const clipChecks: { path: string; url: string }[] = []
+      if (data.sender.clip) clipChecks.push({ path: 'sender.clip.url', url: data.sender.clip.url })
+      for (const [i, p] of (data.projects ?? []).entries())
+        if (p.clip) clipChecks.push({ path: `projects.${i}.clip`, url: p.clip })
+      for (const c of clipChecks) {
+        const checked = await checkClip(c.url, { fetch: mediaFetch })
+        if (!checked.ok) {
+          const message = checked.reason ?? 'not a usable video link'
+          return reply.status(400).send({
+            error: { code: 'invalid_request', message, fields: [{ path: c.path, message }] },
+          })
+        }
+      }
+
+      // never from the client: whether a project's pull request merged comes from GitHub itself
+      let prNote = false
+      const projects = data.projects && [...data.projects]
+      if (projects) {
+        for (let i = 0; i < projects.length; i++) {
+          const { pr: _clientPr, ...rest } = projects[i]!
+          if (!isPrUrl(rest.url)) {
+            projects[i] = rest
+            continue
+          }
+          const state = await prState(rest.url, { fetch: mediaFetch })
+          projects[i] = state ? { ...rest, pr: state } : rest
+          if (!state) prNote = true
+        }
+      }
+      const toSave = projects ? { ...data, projects } : data
+
       const [row] = await sql`
-        insert into profiles (owner, id, name, data) values (${req.owner}, ${req.params.id}, ${req.body.name}, ${sql.json(req.body.data as never)})
+        insert into profiles (owner, id, name, data) values (${req.owner}, ${req.params.id}, ${req.body.name}, ${sql.json(toSave as never)})
         on conflict (owner, id) do update set name = excluded.name, data = excluded.data, updated_at = now()
         returning id, name, data, updated_at`
       // Autopilot films only from a job seeker's profile
       if (req.body.data.preset !== 'candidate')
         await sql`update autopilot set "on" = false, updated_at = now()
           where owner = ${req.owner} and profile_id = ${req.params.id}`
-      return row
+      return prNote
+        ? { ...row, note: "Couldn't check the pull request; it'll show as a link" }
+        : row
     },
   )
 

@@ -75,6 +75,10 @@ export const MAX = {
   projectLine: J.line.maxLength ?? 120,
   creatorName: C.name.maxLength ?? 40,
   creatorLine: C.line.maxLength ?? 120,
+  quoteText: S.quote.unwrap().shape.text.maxLength ?? 140,
+  quoteWho: S.quote.unwrap().shape.who.maxLength ?? 60,
+  quoteRole: S.quote.unwrap().shape.role.maxLength ?? 80,
+  aside: S.aside.unwrap().maxLength ?? 60,
   ctaLine: S.cta.shape.line.maxLength ?? 60,
   ctaContact: S.cta.shape.contact.maxLength ?? 80,
   school: S.schools.unwrap().element.maxLength ?? 60,
@@ -131,8 +135,17 @@ export function prepare(d: ProfileData, name: string): { body: ProfileBody; rows
   })
   const projects: NonNullable<ProfileData['projects']> = []
   ;(d.projects ?? []).forEach((x, i) => {
-    const p = { name: clean(x.name), url: clean(x.url), line: clean(x.line) }
-    if (!p.name && !p.url && !p.line) return
+    // a recording link is typed or pasted whole: trimmed, never reflowed
+    const clip = (x.clip ?? '').trim()
+    const p = {
+      name: clean(x.name),
+      url: clean(x.url),
+      line: clean(x.line),
+      ...(clip ? { clip } : {}),
+      // set by the server from GitHub on save; the form only carries it, never edits it
+      ...(x.pr ? { pr: x.pr } : {}),
+    }
+    if (!p.name && !p.url && !p.line && !clip) return
     projects.push(p)
     rows.projects.push(i)
   })
@@ -146,8 +159,19 @@ export function prepare(d: ProfileData, name: string): { body: ProfileBody; rows
   // links are typed or pasted whole: trimmed, never reflowed
   const linkedin = (d.sender.linkedin ?? '').trim()
   const photo = (d.sender.photo ?? '').trim()
+  const clipUrl = (d.sender.clip?.url ?? '').trim()
+  const clipCaption = clean(d.sender.clip?.caption ?? '')
+  const clip =
+    clipUrl || clipCaption
+      ? { url: clipUrl, ...(clipCaption ? { caption: clipCaption } : {}) }
+      : undefined
   const book = clean(d.cta.book ?? '')
   const { book: _book, ...cta } = d.cta
+  const quoteRaw = d.quote
+    ? { text: clean(d.quote.text), who: clean(d.quote.who), role: clean(d.quote.role) }
+    : null
+  const quote = quoteRaw && (quoteRaw.text || quoteRaw.who || quoteRaw.role) ? quoteRaw : undefined
+  const aside = clean(d.aside ?? '')
 
   const data: ProfileData = {
     ...d,
@@ -157,6 +181,7 @@ export function prepare(d: ProfileData, name: string): { body: ProfileBody; rows
       ...(role ? { role } : {}),
       ...(linkedin ? { linkedin } : {}),
       ...(photo ? { photo } : {}),
+      ...(clip ? { clip } : {}),
     },
     offer: clean(d.offer),
     points,
@@ -169,6 +194,8 @@ export function prepare(d: ProfileData, name: string): { body: ProfileBody; rows
     },
     projects: projects.length ? projects : undefined,
     creator,
+    quote,
+    aside: aside || undefined,
   }
   if (d.skills) data.skills = [...new Set(d.skills.map(clean).filter(Boolean))]
   if (d.schools) data.schools = [...new Set(d.schools.map(clean).filter(Boolean))]
@@ -196,6 +223,11 @@ const EMPTY: Record<string, string> = {
   'creator.name': 'Give what you built a name',
   'creator.url': 'Add the link, starting with https://',
   'creator.line': 'Add one line on what it is',
+  'sender.clip.url': 'Add the link to your clip, starting with https://',
+  'projects.#.clip': 'Add the link, starting with https://',
+  'quote.text': 'Add what they said',
+  'quote.who': 'Add who said it',
+  'quote.role': 'Add their role',
 }
 
 export type Checked =
