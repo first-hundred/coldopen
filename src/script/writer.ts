@@ -42,7 +42,7 @@ const CANDIDATE_NEVER = `${JOB_WORDS.filter((w) => w !== 'openings' && w !== 'r�
 const PRESETS: Record<Profile['preset'], string> = {
   sales:
     'The sender sells the offer below to companies like this one. The film has one job: earn a reply by proving the sender understood this business. Talk about their customers and outcomes, not your features.',
-  candidate: `The sender is a curious builder writing to people at this company about their product. They know from the sender's profile that the sender is looking for work, so the film never says so: it reads like a builder's take on what they make, not an application. Show that the sender understands what the company builds and who it serves. pitch.headline names what the sender would try or build with this company's product, or for its customers, in 4 to 10 words grounded in the sender's points and the fact you quote ("What I'd build next for <their thing>"), never "why I fit". pitch.points are 2 or 3 ideas for their product, each at most ${LIMITS.idea} words, written "I'd <verb> <their thing> — like <what the sender did, short>": the thing is one of THEIR THINGS or a word from their facts, and the "like …" is one proof's "did" or a project, said short ("like the <thing they made> I <verb>ed"). Never copy one of the sender's points as a pitch point. insight.why is read on its own under the quoted fact, so it names what the fact is about (one of THEIR THINGS, or the fact's own subject, with the company's name) and one thing the sender would build for it, from the same work as the first pitch point: "<Company>'s <their thing> is where I'd start: <what you'd build, short>". Never "this number" or "this", and never pitch point 1 word for word. The cta is a warm invitation to talk about their work, at most 8 words ("Trade notes on <their thing>?", "15 minutes on what's next?"). Never write ${CANDIDATE_NEVER} in the hook, noticed, why, headline or cta. Write in the first person ("I").`,
+  candidate: `The sender is a curious builder writing to people at this company about their product. They know from the sender's profile that the sender is looking for work, so the film never says so: it reads like a builder's take on what they make, not an application. Show that the sender understands what the company builds and who it serves. The film opens on the sender, not a greeting: hook says what this film is about for them, at most ${LIMITS.hook} words, naming their product or team ("An agent runtime idea for LangSmith Engine"), never "Hi" or "Hey" or "Hello". pitch.headline names what the sender would try or build with this company's product, or for its customers, in 4 to 10 words grounded in the sender's points and the fact you quote ("What I'd build next for <their thing>"), never "why I fit". pitch.points are 2 or 3 ideas for their product, each at most ${LIMITS.idea} words, written "I'd <verb> <their thing> — like <what the sender did, short>": the thing is one of THEIR THINGS or a word from their facts, and the "like …" is one proof's "did" or a project, said short ("like the <thing they made> I <verb>ed"). Never copy one of the sender's points as a pitch point. insight.why is read on its own under the quoted fact, so it names what the fact is about (one of THEIR THINGS, or the fact's own subject, with the company's name) and one thing the sender would build for it, from the same work as the first pitch point: "<Company>'s <their thing> is where I'd start: <what you'd build, short>". Never "this number" or "this", and never pitch point 1 word for word. The cta is a warm invitation to talk about their work, at most 8 words ("Trade notes on <their thing>?", "15 minutes on what's next?"). Never write ${CANDIDATE_NEVER} in the hook, noticed, why, headline or cta. Write in the first person ("I").`,
   hiring:
     'The sender is on the team at this company and is announcing an open role to everyone, as a LinkedIn post. The company facts are your own company. Speak to whoever is watching as "you" and about your company as "we" or "our". Make the role feel concrete and worth applying for, without hype. The call to action points to the job post.',
   recruiter:
@@ -354,6 +354,25 @@ function hookFor(name: string, first: string): string {
   return `Hi ${first} team`
 }
 
+const article = (w: string) => (/^[aeiou]/i.test(w) ? 'An' : 'A')
+
+/**
+ * A job seeker's hook: what this film is about for them, never a greeting (the sender's own
+ * name opens the film instead; see storyboard.ts). Names the topic the quoted fact shares
+ * with their homepage ("agent runtime"), or just their name with no topic to draw on.
+ */
+export function candidateHook(topic: string | null, name: string, first: string): string {
+  const variants = topic
+    ? [
+        `${article(topic)} ${topic} idea for ${name}`,
+        `${article(topic)} ${topic} idea for ${first}`,
+      ]
+    : []
+  for (const line of [...variants, `An idea for ${name}`, `An idea for ${first}`])
+    if (words(line) <= LIMITS.hook) return line
+  return `An idea for ${first}`
+}
+
 /**
  * A job seeker's pitch headline: what they'd try or build with this company's product, never
  * "why I fit". The slot is their thing ("Parcelpine's returns", or the company), so two
@@ -479,7 +498,9 @@ export function deterministicScript(
   const hook =
     profile.preset === 'recruiter'
       ? recruiterHook(profile.recipient?.name.split(/\s+/)[0], name, first)
-      : hookFor(name, first)
+      : candidate
+        ? candidateHook(topicOf(kit, fact), name, first)
+        : hookFor(name, first)
   // a job seeker's pitch is ideas for their product; anyone else's, their own points (prefer
   // points that already fit, so nothing is cut mid-phrase)
   const points =
@@ -670,11 +691,15 @@ function jobScript(
     .map((x) => x.i)
     .filter((i) => i !== answer)
   const them = profile.recipient?.name.split(/\s+/)[0]
-  const hook = recruiter ? recruiterHook(them, name, first) : hookFor(name, first)
   // a job seeker's film is a builder's take on their product, not an answer to the post: the
   // headline and the ask are about what they make (the topic comes from their homepage's stat)
   const candidate = profile.preset === 'candidate'
   const topic = candidate ? topicOf(kit, bestFact(kit, profile)) : null
+  const hook = recruiter
+    ? recruiterHook(them, name, first)
+    : candidate
+      ? candidateHook(topic, name, first)
+      : hookFor(name, first)
   const headline = recruiter
     ? words(`Why you fit our ${title} role`) <= LIMITS.headline
       ? `Why you fit our ${title} role`

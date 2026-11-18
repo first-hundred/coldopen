@@ -133,7 +133,7 @@ export function ProfileEditor({
       { projects: projects.map((x, j) => (j === i ? { ...x, [key]: value } : x)) },
       `projects.${i}.${key}`,
     )
-  const creator = d.creator ?? { name: '', url: '', line: '' }
+  const creator = d.creator ?? { name: '', url: '', line: '', clip: '' }
   const setCreator = (key: keyof typeof creator, value: string) =>
     set({ creator: { ...creator, [key]: value } }, `creator.${key}`)
   const quote = d.quote ?? { text: '', who: '', role: '' }
@@ -631,6 +631,25 @@ export function ProfileEditor({
                 value={creator.line}
                 onValue={(v) => setCreator('line', v)}
               />
+              <label className="wide" htmlFor={fid('creator.clip')}>
+                <span>
+                  Recording <small>optional</small>
+                </span>
+                <Text
+                  path="creator.clip"
+                  error={err('creator.clip')}
+                  hint={
+                    err('creator.clip')
+                      ? undefined
+                      : 'A short screen recording of it running, 90s or under.'
+                  }
+                  aria-label="What you built: recording"
+                  placeholder="https://you.github.io/demo.mp4"
+                  inputMode="url"
+                  value={creator.clip ?? ''}
+                  onValue={(v) => setCreator('clip', v)}
+                />
+              </label>
             </div>
           </fieldset>
 

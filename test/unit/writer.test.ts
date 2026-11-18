@@ -84,9 +84,12 @@ describe('the built-in writer varies by company', () => {
               ? [base.insight.why]
               : (stat ? WHY.salesStat : WHY.salesClaim).map((f) => f(who))
           const tries: Script[] = [
-            ...HOOKS.map((h) => h(n))
-              .filter((h) => words(h) <= 6)
-              .map((hook) => ({ ...base, hook })),
+            // HOOKS is the greeting list: a job seeker's hook never greets them (checks.ts)
+            ...(preset === 'candidate'
+              ? []
+              : HOOKS.map((h) => h(n))
+                  .filter((h) => words(h) <= 6)
+                  .map((hook) => ({ ...base, hook }))),
             ...whys.map((why) => ({ ...base, insight: { ...base.insight, why } })),
             ...(preset === 'candidate'
               ? HEADLINES.map((h) => ({ ...base, pitch: { ...base.pitch, headline: h(n) } }))

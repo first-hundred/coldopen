@@ -83,7 +83,9 @@ describe('the fact scene says where the quote is from', () => {
       )
       try {
         expect(c.report.issues).toEqual([])
-        const start = board.scenes.slice(0, 2).reduce((a, s) => a + s.dur, 0)
+        // a job seeker's film has no site scene before the insight scene
+        const i = board.scenes.findIndex((s) => s.kind === 'insight')
+        const start = board.scenes.slice(0, i).reduce((a, s) => a + s.dur, 0)
         await seek(c.page, start + 3)
         const got = await c.page.evaluate(() => {
           const el = document.querySelector('.scene.insight .source') as HTMLElement
@@ -222,10 +224,22 @@ describe('the end card says who built the tool that made it', () => {
     line: 'Paste a company website, get a 30-second film made for them',
   }
 
+  // close enough to Parcelpine's own page (fraud, wardrobing, returns, refund) that
+  // relatedWork picks it as the work scene, leaving the end card free to carry the creator line
+  const PROJECT = {
+    name: 'ReturnGuard',
+    url: 'https://github.com/alex/returnguard',
+    line: 'Flags fraud and wardrobing patterns on returns before a refund is issued',
+  }
+
   async function endCard(creator?: typeof CREATOR, preset: 'candidate' | 'sales' = 'candidate') {
     const { kit: home, dir } = await kitFor('parcelpine')
     const kit = withHomework(home, HOMEWORK)
-    const p = { ...profile(preset), ...(creator ? { creator } : {}) }
+    const p = {
+      ...profile(preset),
+      ...(creator ? { creator } : {}),
+      ...(preset === 'candidate' ? { projects: [PROJECT] } : {}),
+    }
     const board = buildStoryboard(kit, p, deterministicScript(kit, p))
     const theme = await buildTheme(kit, p, { allowPrivateNetworks: true })
     const shot = `data:image/jpeg;base64,${readFileSync(join(dir, kit.screenshot.file)).toString('base64')}`

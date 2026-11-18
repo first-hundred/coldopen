@@ -122,6 +122,11 @@ export const ProfileSchema = z.object({
         .regex(/^https:\/\/\S{4,300}$/, 'a link to what you built starts with https://'),
       /** one line on what it is, in plain words */
       line: z.string().trim().min(3).max(120),
+      /** a screen recording of it running, 90s or under, so a candidate's film can show it */
+      clip: z
+        .string()
+        .regex(/^https:\/\/\S{4,300}$/, 'a recording link starts with https://')
+        .optional(),
     })
     .optional(),
   /** one line someone said about their work: a stranger's word for it, not the sender's own */

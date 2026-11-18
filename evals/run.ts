@@ -494,11 +494,18 @@ try {
       if (messagesOnly) continue
 
       // --- design quality. A job seeker's film is rendered with a creator line, so the overflow
-      // check covers it; the same film without one must carry no line at all
+      // check covers it; the same film without one must carry no line at all. The end card's
+      // own line is only shown when the work scene isn't the creator, so force a project pick
+      // here (its name doesn't need to be related to the site) rather than leaving it to
+      // relatedWork(), which the work scene itself isn't rendered yet to verify (step 4).
+      const DESIGN_PROJECT = { name: 'coldopen demo', url: CREATOR.url, line: CREATOR.line }
       const board = buildStoryboard(
         kit,
-        preset === 'candidate' ? { ...profile, creator: CREATOR } : profile,
+        preset === 'candidate'
+          ? { ...profile, creator: CREATOR, projects: [DESIGN_PROJECT] }
+          : profile,
         s.script,
+        preset === 'candidate' ? { project: DESIGN_PROJECT.name } : {},
       )
       const plain = buildStoryboard(kit, profile, s.script)
       const creatorWrong: string[] = []
@@ -539,19 +546,24 @@ try {
               .filter((i) => (i.text ?? '').includes('which I built'))
               .map((i) => `${format}: ${i.kind}`),
           )
+        // a job seeker's film has no site scene (the screenshot moves into insight's thumb,
+        // not drawn yet): nothing to frame there until that scene is rendered
         const margin = c.report.frame?.margin ?? -1
-        if (margin < 0.04 - 1e-6) framed.push(`${format}: margin ${(margin * 100).toFixed(1)}%`)
+        if (preset !== 'candidate' && margin < 0.04 - 1e-6)
+          framed.push(`${format}: margin ${(margin * 100).toFixed(1)}%`)
         if (format === 'square') {
-          // seeking is exact: the same timestamp always produces the same pixels
+          // seeking is exact: the same timestamp always produces the same pixels. Relative to
+          // the film's own length (a job seeker's varies with the work scene), not fixed
+          // seconds, so the two points always land well inside a scene, away from its edges
           const frame = async (t: number) => {
             await seek(c.page, t)
             return createHash('sha1')
               .update(await c.page.screenshot({ type: 'png' }))
               .digest('hex')
           }
-          const a = await frame(7.3)
-          await frame(20.1)
-          deterministic = a === (await frame(7.3))
+          const a = await frame(4.0)
+          await frame(board.duration - 4.0)
+          deterministic = a === (await frame(4.0))
         }
         await c.close()
       }

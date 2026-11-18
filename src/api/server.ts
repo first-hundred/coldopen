@@ -898,6 +898,7 @@ export async function buildApi({
       if (data.sender.clip) clipChecks.push({ path: 'sender.clip.url', url: data.sender.clip.url })
       for (const [i, p] of (data.projects ?? []).entries())
         if (p.clip) clipChecks.push({ path: `projects.${i}.clip`, url: p.clip })
+      if (data.creator?.clip) clipChecks.push({ path: 'creator.clip', url: data.creator.clip })
       for (const c of clipChecks) {
         const checked = await checkClip(c.url, { fetch: mediaFetch })
         if (!checked.ok) {

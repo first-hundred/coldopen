@@ -1,8 +1,17 @@
 import type { BrandKit, Fact } from '../brand/types.ts'
+import { type Project, relatedWork } from '../profile/related.ts'
+import type { ClipOutcome, PrepareClipResult } from '../render/clip.ts'
 import type { Profile, Script } from './types.ts'
 
 export type Scene =
-  | { kind: 'hook'; dur: number; text: string; sub: string }
+  | {
+      kind: 'hook'
+      dur: number
+      text: string
+      sub: string
+      /** a job seeker's film: the sender's own face, from the clips step (src/render/clip.ts) */
+      face?: PrepareClipResult
+    }
   | {
       kind: 'site'
       dur: number
@@ -23,14 +32,34 @@ export type Scene =
       /** the page it's from, for the share page to link (https only) */
       sourceUrl?: string
       why: string
+      /** a job seeker's film: the screenshot (what the site scene showed), in this scene instead */
+      thumb?: { host: string; focus?: string }
+      /** a job seeker's film: script.noticed, carried here for the share page (no site scene) */
+      noticed?: string
+      /** a job seeker's film: the renderer makes "why" the headline, not the quoted fact */
+      emphasis?: 'why'
     }
   | { kind: 'pitch'; dur: number; from: string; headline: string; points: string[] }
+  | {
+      kind: 'work'
+      dur: number
+      /** a project's recording, a project with none, or the sender's own tool (the creator) */
+      mode: 'recording' | 'project' | 'creator'
+      name: string
+      line: string
+      url: string
+      pr?: { repo: string; merged: boolean }
+      /** the clips step's frames, when the recording prepared */
+      frames?: PrepareClipResult
+    }
   | {
       kind: 'proof'
       dur: number
       stats: { value: string; label: string; where?: string; did?: string }[]
       /** a line above the numbers; recruiter films say whose record they are */
       heading?: string
+      /** a job seeker's film: one line someone said about their work */
+      quote?: { text: string; who: string; role: string }
     }
   | {
       kind: 'cta'
@@ -40,10 +69,21 @@ export type Scene =
       signoff: string
       /**
        * a job seeker who built the tool that made the film: under the ask, "Made with <name>,
-       * which I built", and a link to it on the share page (https only)
+       * which I built", and a link to it on the share page (https only). Left out when the work
+       * scene already is the creator, so the film doesn't say it twice.
        */
       made?: { name: string; url: string }
+      /** a job seeker's film: one thing about them that isn't on the résumé */
+      aside?: string
     }
+
+/**
+ * The kinds of scene this storyboard actually has, in order. A sales, recruiter or hiring film
+ * always has the same six; a job seeker's varies (no site scene, a work scene only sometimes),
+ * so code that used to assume six reads this instead of indexing into `scenes` by position.
+ */
+export const sceneKinds = (board: Pick<Storyboard, 'scenes'>): Scene['kind'][] =>
+  board.scenes.map((s) => s.kind)
 
 export interface Storyboard {
   company: string
@@ -54,6 +94,12 @@ export interface Storyboard {
   header?: string
   scenes: Scene[]
   duration: number
+  /**
+   * a job seeker's film: a small face in the corner of scenes between the hook and the end
+   * card, so the sender has a face in every film. The clips step's frames, or, with no face
+   * clip, their photo as a still.
+   */
+  bubble?: PrepareClipResult | { photo: string }
 }
 
 /** "38% fewer late deliveries" -> { value: "38%", rest: "fewer late deliveries" } */
@@ -151,11 +197,54 @@ export function asked(line: string): string {
     : line.trim()
 }
 
+export type WorkPick =
+  | { kind: 'project'; project: Project }
+  | { kind: 'creator'; creator: NonNullable<Profile['creator']> }
+  | { kind: 'none' }
+
+/**
+ * What a job seeker's work scene shows: the project closest to this company and role
+ * (relatedWork), or, with no related project, the tool they built that made the film (so
+ * coldopen's own film shows coldopen). `override` is `input.project` (film.ts): it wins when
+ * it names one of the sender's projects. Pure, so film.ts can call it before the clips step
+ * (to know which recording to prepare) and buildStoryboard can call it again after preparing
+ * clips, and get the same pick both times — a replay never disagrees with itself.
+ */
+export function pickWork(
+  profile: Pick<Profile, 'projects' | 'creator'>,
+  kit: Parameters<typeof relatedWork>[1],
+  override?: string,
+): WorkPick {
+  const forced = override ? profile.projects?.find((p) => p.name === override) : undefined
+  if (forced) return { kind: 'project', project: forced }
+  const related = relatedWork(profile, kit)
+  if (related) return { kind: 'project', project: related }
+  if (profile.creator) return { kind: 'creator', creator: profile.creator }
+  return { kind: 'none' }
+}
+
+export interface BuildStoryboardOptions {
+  /** the clips step's output (src/render/clip.ts): the sender's face and/or the work recording */
+  clips?: { face?: ClipOutcome; recording?: ClipOutcome }
+  /** input.project (film.ts): forces which project's recording the work scene shows */
+  project?: string
+}
+
+/** a successful clip outcome, or undefined when it's missing or failed to prepare */
+const preparedClip = (c: ClipOutcome | undefined): PrepareClipResult | undefined =>
+  c && !('failed' in c) ? c : undefined
+
 /**
  * Deterministic assembly. The model's lines go where they belong, and everything factual
  * comes straight from its source: the quote from the site, the proof from the profile.
  */
-export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script): Storyboard {
+export function buildStoryboard(
+  kit: BrandKit,
+  profile: Profile,
+  script: Script,
+  opts: BuildStoryboardOptions = {},
+): Storyboard {
+  if (profile.preset === 'candidate') return buildCandidateStoryboard(kit, profile, script, opts)
   const fact = kit.facts.find((f) => f.id === script.insight.factId) ?? kit.facts[0]!
   // a requirement is their words, shown as a quote even when it has a number in it
   const stat = fact.kind === 'requirement' ? null : splitStat(fact.text)
@@ -178,8 +267,7 @@ export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script)
           ? kit.job
             ? `About our ${kit.job.title} role`
             : `A 30-second film from ${kit.name}`
-          : // a job seeker's film is about their product, even when it began from their post
-            kit.job && profile.preset !== 'candidate'
+          : kit.job
             ? `For your ${kit.job.title} role`
             : `A 30-second film for ${kit.name}`,
     },
@@ -242,9 +330,6 @@ export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script)
         : recruiter
           ? `Made for ${them ?? 'you'} by ${profile.sender.name} at ${profile.sender.company ?? kit.name}`
           : `Made for ${kit.name} by ${profile.sender.name}${profile.sender.company ? ` at ${profile.sender.company}` : ''}`,
-      ...(profile.preset === 'candidate' && profile.creator
-        ? { made: { name: profile.creator.name, url: profile.creator.url } }
-        : {}),
     },
   ]
   return {
@@ -254,5 +339,121 @@ export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script)
     ...(hiring ? { header: 'Now hiring' } : {}),
     scenes,
     duration: Math.round(scenes.reduce((a, s) => a + s.dur, 0) * 10) / 10,
+  }
+}
+
+/**
+ * A job seeker's storyboard: the sender first (the hook is who they are, not a greeting), the
+ * company's fact in 4 seconds flat, then up to 8 seconds on something they built. No site
+ * scene: the screenshot moves into the insight scene as `thumb`.
+ */
+function buildCandidateStoryboard(
+  kit: BrandKit,
+  profile: Profile,
+  script: Script,
+  opts: BuildStoryboardOptions,
+): Storyboard {
+  const fact = kit.facts.find((f) => f.id === script.insight.factId) ?? kit.facts[0]!
+  const stat = fact.kind === 'requirement' ? null : splitStat(fact.text)
+  const from = profile.sender.company
+    ? `${profile.sender.name}, ${profile.sender.company}`
+    : profile.sender.name
+
+  const face = preparedClip(opts.clips?.face)
+  const recording = preparedClip(opts.clips?.recording)
+
+  const pick = pickWork(profile, kit, opts.project)
+  const work: Scene | null =
+    pick.kind === 'project'
+      ? {
+          kind: 'work',
+          dur: 8.0,
+          mode: recording ? 'recording' : 'project',
+          name: pick.project.name,
+          line: pick.project.line,
+          url: pick.project.url,
+          ...(pick.project.pr ? { pr: pick.project.pr } : {}),
+          ...(recording ? { frames: recording } : {}),
+        }
+      : pick.kind === 'creator'
+        ? {
+            kind: 'work',
+            dur: 8.0,
+            mode: 'creator',
+            name: pick.creator.name,
+            line: pick.creator.line,
+            url: pick.creator.url,
+            ...(recording ? { frames: recording } : {}),
+          }
+        : null
+
+  const focus = noticedFact(kit, script.noticed)
+  // "Weekly" and other labels with no number don't read as a result on screen
+  const proofStats = script.proof.map((i) => profile.proof[i]!).filter((p) => /\d/.test(p.value))
+
+  const scenes: Scene[] = [
+    {
+      kind: 'hook',
+      dur: 3.0,
+      text: profile.sender.role
+        ? `${profile.sender.name}, ${profile.sender.role}`
+        : profile.sender.name,
+      sub: script.hook.replace(/[.,]$/, ''),
+      ...(face ? { face } : {}),
+    },
+    {
+      kind: 'insight',
+      dur: 4.0,
+      value: stat?.value ?? null,
+      text: stat ? stat.rest : fact.text.replace(/^["“]|["”]$/g, ''),
+      // a requirement is quoted from the job post, not the homepage
+      source: fact.kind === 'requirement' && kit.job ? `your ${kit.job.title} post` : kit.host,
+      caption: captionFor(fact, { ...(kit.job ? { job: kit.job.title } : {}) }),
+      ...(httpsUrl(fact.source?.url) ? { sourceUrl: httpsUrl(fact.source?.url)! } : {}),
+      why: script.insight.why.replace(/\.$/, ''),
+      thumb: { host: kit.host, ...(focus ? { focus: focus.id } : {}) },
+      noticed: script.noticed.replace(/\.$/, ''),
+      emphasis: 'why',
+    },
+    {
+      kind: 'pitch',
+      dur: work ? 5.0 : 6.0,
+      from,
+      headline: script.pitch.headline.replace(/\.$/, ''),
+      points: script.pitch.points.map((x) => x.replace(/\.$/, '')),
+    },
+    ...(work ? [work] : []),
+    ...(proofStats.length
+      ? [
+          {
+            kind: 'proof' as const,
+            dur: 4.4,
+            stats: proofStats,
+            ...(profile.quote ? { quote: profile.quote } : {}),
+          },
+        ]
+      : []),
+    {
+      kind: 'cta',
+      dur: 4.6,
+      line: asked(script.cta),
+      contact: profile.cta.contact,
+      signoff: `Made for ${kit.name} by ${profile.sender.name}${profile.sender.company ? ` at ${profile.sender.company}` : ''}`,
+      // the work scene already is the creator: saying "made with" again would repeat it
+      ...(profile.creator && pick.kind !== 'creator'
+        ? { made: { name: profile.creator.name, url: profile.creator.url } }
+        : {}),
+      ...(profile.aside ? { aside: profile.aside } : {}),
+    },
+  ]
+
+  const bubble = face ?? (profile.sender.photo ? { photo: profile.sender.photo } : undefined)
+
+  return {
+    company: kit.name,
+    sender: from,
+    scenes,
+    duration: Math.round(scenes.reduce((a, s) => a + s.dur, 0) * 10) / 10,
+    ...(bubble ? { bubble } : {}),
   }
 }

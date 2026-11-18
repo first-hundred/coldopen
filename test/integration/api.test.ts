@@ -312,6 +312,31 @@ describe('showing your work: a clip, a recording, and a pull request read from G
     ])
   })
 
+  it("refuses a creator's clip link that isn't a video, naming the field", async () => {
+    const base = profile('candidate')
+    const data = {
+      ...base,
+      creator: {
+        name: 'shipkit',
+        url: 'https://shipkit.example',
+        line: 'A kit I wrote for shipping side projects',
+        clip: 'https://drive.example.com/share/xyz',
+      },
+    }
+    const res = await media.inject({
+      method: 'PUT',
+      url: '/v1/profiles/alex4',
+      headers: mediaAuth,
+      payload: { name: 'Alex 4', data },
+    })
+    expect(res.statusCode).toBe(400)
+    const { error } = res.json()
+    expect(error.code).toBe('invalid_request')
+    expect(error.fields).toEqual([
+      { path: 'creator.clip', message: expect.stringContaining('opens a web page') },
+    ])
+  })
+
   it("sets a project's pr from GitHub, never from the request", async () => {
     const base = profile('candidate')
     const data = {

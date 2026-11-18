@@ -135,6 +135,9 @@ function sceneHtml(s: Scene, i: number, start: number, c: SceneCtx): string {
         </div>
         <p class="signoff in" style="animation-delay:1700ms">${esc(s.signoff)}</p>
       </section>`
+    // drawn starting in step 4 of "the job seeker's storyboard"; a blank scene until then
+    case 'work':
+      return ''
   }
 }
 

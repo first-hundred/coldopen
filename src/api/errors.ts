@@ -66,6 +66,7 @@ const NAMES: Record<string, string> = {
   'creator.name': 'the name of what you built',
   'creator.url': 'the link to what you built',
   'creator.line': 'the line about what you built',
+  'creator.clip': 'the recording of what you built',
   detail: 'what you noticed using it',
   question: 'your question for them',
   built: 'what you built with it',

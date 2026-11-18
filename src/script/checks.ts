@@ -342,7 +342,17 @@ export function checkScript(
   if (new Set(script.proof).size !== script.proof.length) v.push('proof indices repeat')
 
   // the lines have jobs; restating what's already on screen does none of them
-  if (words(script.hook) < 3)
+  // a job seeker's hook says what the film is about for them, not a greeting ("Hi <company> team")
+  if (profile.preset === 'candidate') {
+    if (/^(hi|hey|hello)\b/i.test(script.hook.trim()))
+      v.push(
+        `hook "${script.hook}" greets them; say what this film is about instead (max ${LIMITS.hook} words, names their product or team, no greeting)`,
+      )
+    if (words(script.hook) < 2)
+      v.push(
+        `hook "${script.hook}" is too bare; say what this film is about in 2 to ${LIMITS.hook} words`,
+      )
+  } else if (words(script.hook) < 3)
     v.push(`hook "${script.hook}" is too bare; greet them in 3 to ${LIMITS.hook} words`)
   if (kit.headline && overlap(script.noticed, kit.headline) > 0.8 && !/["“”]/.test(script.noticed))
     v.push(

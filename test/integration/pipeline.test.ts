@@ -49,8 +49,9 @@ describe('film pipeline (no database)', () => {
     })
     for (const f of Object.values(r.files).flat())
       expect(existsSync(join(filmsDir, f)), f).toBe(true)
-    // one still per scene, for the review's filmstrip
-    expect(r.files.scenes).toHaveLength(6)
+    // one still per scene, for the review's filmstrip. This profile has no project and no
+    // creator, so its job seeker's film has no work scene: hook, insight, pitch, proof, cta
+    expect(r.files.scenes).toHaveLength(5)
     expect(new Set(progress)).toEqual(new Set(['research', 'script', 'design', 'render', 'encode']))
 
     const probe = JSON.parse(
@@ -79,7 +80,7 @@ describe('film pipeline (no database)', () => {
     const again = await agent.run(second, input)
     expect(Date.now() - t1).toBeLessThan(firstMs / 5)
     expect(second.replayed).toEqual(
-      expect.arrayContaining(['research', 'script', 'compose', 'render:0', 'render:5', 'encode']),
+      expect.arrayContaining(['research', 'script', 'compose', 'render:0', 'render:4', 'encode']),
     )
     expect(again.files).toEqual(r.files)
   })

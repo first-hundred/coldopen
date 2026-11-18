@@ -308,4 +308,33 @@ describe('the share page', () => {
       'href="https://app.example.dev/privacy"',
     )
   })
+
+  it("falls back to the insight scene's noticed line when there is no site scene", () => {
+    // a job seeker's storyboard has no site scene: the screenshot moved into insight's thumb
+    const noSite = {
+      company: 'Linear',
+      sender: 'Alex Rivera',
+      duration: 20,
+      scenes: [
+        {
+          kind: 'insight' as const,
+          dur: 4,
+          value: null,
+          text: 'A fact about Linear',
+          source: 'linear.app',
+          caption: 'From their homepage',
+          why: 'why it matters',
+          noticed: 'Linear ships every week',
+        },
+        {
+          kind: 'cta' as const,
+          dur: 3,
+          line: 'Could we talk this week?',
+          contact: 'me@example.com',
+          signoff: '',
+        },
+      ],
+    }
+    expect(viewFromStoryboard(noSite, 'film-square.mp4').tease).toBe('Linear ships every week')
+  })
 })

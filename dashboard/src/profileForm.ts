@@ -150,10 +150,17 @@ export function prepare(d: ProfileData, name: string): { body: ProfileBody; rows
     rows.projects.push(i)
   })
   // what you built that made the film: left out when blank, kept when half filled so it's checked
+  // a recording link is typed or pasted whole: trimmed, never reflowed
+  const creatorClip = (d.creator?.clip ?? '').trim()
   const made = d.creator
-    ? { name: clean(d.creator.name), url: clean(d.creator.url), line: clean(d.creator.line) }
+    ? {
+        name: clean(d.creator.name),
+        url: clean(d.creator.url),
+        line: clean(d.creator.line),
+        ...(creatorClip ? { clip: creatorClip } : {}),
+      }
     : null
-  const creator = made && (made.name || made.url || made.line) ? made : undefined
+  const creator = made && (made.name || made.url || made.line || creatorClip) ? made : undefined
   const company = clean(d.sender.company ?? '')
   const role = clean(d.sender.role ?? '')
   // links are typed or pasted whole: trimmed, never reflowed

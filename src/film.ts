@@ -33,7 +33,7 @@ import { NonRetryableError } from './runtime/errors.ts'
 import { defineAgent } from './runtime/types.ts'
 import { editViolations, quotableFacts } from './script/checks.ts'
 import type { FilmBrand, ReviewFact } from './script/review.ts'
-import { buildStoryboard, captionFor, type Storyboard } from './script/storyboard.ts'
+import { buildStoryboard, captionFor, pickWork, type Storyboard } from './script/storyboard.ts'
 import {
   type Profile,
   ProfileSchema,
@@ -405,11 +405,58 @@ export function createFilmAgent(opts: FilmAgentOptions) {
       }
       const { script, meta } = written
 
+      // short clips (the sender's face, a job seeker's work recording), prepared once and
+      // replayed for free on resume (see src/render/clip.ts). A clip that fails isn't fatal:
+      // the step records why instead of frames, and the film falls back to the plain layout
+      // for that slot, so the review can say why. pickWork runs again, with the same profile
+      // and kit, inside buildStoryboard: a pure pick replays identically, so the clip prepared
+      // here is always the one the work scene shows.
+      const workPick = pickWork(profile, kit, input.project)
+      const recordingUrl =
+        workPick.kind === 'project'
+          ? workPick.project.clip
+          : workPick.kind === 'creator'
+            ? workPick.creator.clip
+            : undefined
+      let clips: FilmResult['clips']
+      if (profile.sender.clip || recordingUrl) {
+        ctx.progress({ stage: 'design', label: 'Preparing your clips' })
+        clips = await ctx.step('clips', async () => {
+          const out: NonNullable<FilmResult['clips']> = {}
+          if (profile.sender.clip)
+            out.face = await prepareOneClip(
+              profile.sender.clip.url,
+              {
+                slot: 3.0,
+                size: FORMATS[format],
+                mode: 'cover',
+              },
+              dir,
+              opts.allowPrivateNetworks ?? false,
+              rel,
+            )
+          if (recordingUrl)
+            out.recording = await prepareOneClip(
+              recordingUrl,
+              {
+                slot: 8.0,
+                size: FORMATS[format],
+                mode: 'contain',
+              },
+              dir,
+              opts.allowPrivateNetworks ?? false,
+              rel,
+            )
+          return out
+        })
+      }
+
       const picked = input.proof?.filter((i) => i < profile.proof.length)
       const board: Storyboard = buildStoryboard(
         kit,
         profile,
         picked?.length ? { ...script, proof: picked } : script,
+        { ...(clips ? { clips } : {}), ...(input.project ? { project: input.project } : {}) },
       )
       const storyboardFile = join(dir, 'storyboard.json')
       const highlights = highlightsOf(board)
@@ -460,46 +507,6 @@ export function createFilmAgent(opts: FilmAgentOptions) {
         }
         const result = written
         messages = await ctx.step('messages', async () => result)
-      }
-
-      // short clips (the sender's face, a project's recording), prepared once and replayed for
-      // free on resume (see src/render/clip.ts). A clip that fails isn't fatal: the step
-      // records why instead of frames, and the film falls back to the plain layout for that
-      // slot, so the review can say why.
-      const chosenProject = input.project
-        ? profile.projects?.find((p) => p.name === input.project)
-        : undefined
-      let clips: FilmResult['clips']
-      if (profile.sender.clip || chosenProject?.clip) {
-        ctx.progress({ stage: 'design', label: 'Preparing your clips' })
-        clips = await ctx.step('clips', async () => {
-          const out: NonNullable<FilmResult['clips']> = {}
-          if (profile.sender.clip)
-            out.face = await prepareOneClip(
-              profile.sender.clip.url,
-              {
-                slot: 3.0,
-                size: FORMATS[format],
-                mode: 'cover',
-              },
-              dir,
-              opts.allowPrivateNetworks ?? false,
-              rel,
-            )
-          if (chosenProject?.clip)
-            out.recording = await prepareOneClip(
-              chosenProject.clip,
-              {
-                slot: 6.5,
-                size: FORMATS[format],
-                mode: 'contain',
-              },
-              dir,
-              opts.allowPrivateNetworks ?? false,
-              rel,
-            )
-          return out
-        })
       }
 
       ctx.progress({ stage: 'design', label: `Matching ${kit.name}'s brand` })

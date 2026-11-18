@@ -112,8 +112,9 @@ describe('a film that answers the job', () => {
 
     const board = buildStoryboard(jobKit, candidate, s)
     const hook = board.scenes[0]!
-    const insight = board.scenes[2]!
-    expect(hook.kind === 'hook' && hook.sub).toBe(`A 30-second film for ${jobKit.name}`)
+    // no site scene: insight is the second scene, not the third
+    const insight = board.scenes[1]!
+    expect(hook.kind === 'hook' && hook.sub).toBe(s.hook)
     expect(insight.kind === 'insight' && insight.source).toBe('your Forward Deployed Engineer post')
     // their words, shown as a quote: never turned into a big "3+"
     expect(insight.kind === 'insight' && insight.value).toBeNull()
@@ -148,9 +149,7 @@ describe('a film that answers the job', () => {
   it('without a job post, films are unchanged', () => {
     const s = deterministicScript(kit, candidate)
     expect(s.insight.factId).toBe('f2')
-    expect(buildStoryboard(kit, candidate, s).scenes[0]).toMatchObject({
-      sub: 'A 30-second film for Northwind Freight',
-    })
+    expect(buildStoryboard(kit, candidate, s).scenes[0]).toMatchObject({ sub: s.hook })
   })
 })
 

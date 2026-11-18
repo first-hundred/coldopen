@@ -167,7 +167,13 @@ export function viewFromStoryboard(board: Storyboard, film: string): ShareView {
         })
       : null
   const site = board.scenes.find((s) => s.kind === 'site')
-  const noticed = site?.kind === 'site' ? site.caption?.trim() : ''
+  // a job seeker's film has no site scene: the insight scene carries "noticed" instead
+  const noticed =
+    site?.kind === 'site'
+      ? site.caption?.trim()
+      : insight?.kind === 'insight'
+        ? insight.noticed?.trim()
+        : ''
   const format = (film.match(/film-(square|landscape|portrait)\.mp4$/)?.[1] ??
     'square') as ShareView['format']
   // board.sender is "Name, Company" or "Name"

@@ -340,7 +340,7 @@ export interface ProfileData {
     pr?: { repo: string; merged: boolean }
   }[]
   /** the tool you built that made this film, so messages and the end card can say so */
-  creator?: { name: string; url: string; line: string }
+  creator?: { name: string; url: string; line: string; clip?: string }
   /** one line someone said about their work */
   quote?: { text: string; who: string; role: string }
   /** one thing about them that isn't on the résumé */
