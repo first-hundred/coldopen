@@ -16,6 +16,7 @@ import { openerFor } from './outreach/messages.ts'
 import { type FilmMessages, messagesSchemaFor, writeMessages } from './outreach/writer.ts'
 import { withRole } from './profile/pitch.ts'
 import { relatedWork } from './profile/related.ts'
+import { type ClipOutcome, prepareClip } from './render/clip.ts'
 import { compose, FORMATS, type Format, siteShot } from './render/composition.ts'
 import {
   concatSegments,
@@ -55,6 +56,11 @@ export const FilmInputSchema = z.object({
   batch: z.string().max(64).optional(),
   /** show exactly these proof items (indices into profile.proof) instead of the writer's pick */
   proof: z.array(z.number().int().min(0)).min(1).max(3).optional(),
+  /**
+   * the sender's project whose recording this film shows (its name, matching profile.projects).
+   * Step 3 will pick this automatically; for now it's passed in.
+   */
+  project: z.string().max(60).optional(),
   /** reply in this Slack thread when the film is ready */
   slack: z.object({ channel: z.string(), threadTs: z.string() }).optional(),
   /**
@@ -126,6 +132,11 @@ export interface FilmResult {
   brand?: FilmBrand
   /** the facts the film could quote (the featured one too), for "Use another fact" */
   facts?: ReviewFact[]
+  /**
+   * short clips prepared for the render (see src/render/clip.ts): the sender's face and/or
+   * the chosen project's recording. A clip that failed carries why, instead of frames.
+   */
+  clips?: { face?: ClipOutcome; recording?: ClipOutcome }
   /**
    * who wrote the film's words: the model, or the built-in writer (the script's deterministic
    * writer, the messages' templates) when no model was set or every model was busy; and the
@@ -451,6 +462,46 @@ export function createFilmAgent(opts: FilmAgentOptions) {
         messages = await ctx.step('messages', async () => result)
       }
 
+      // short clips (the sender's face, a project's recording), prepared once and replayed for
+      // free on resume (see src/render/clip.ts). A clip that fails isn't fatal: the step
+      // records why instead of frames, and the film falls back to the plain layout for that
+      // slot, so the review can say why.
+      const chosenProject = input.project
+        ? profile.projects?.find((p) => p.name === input.project)
+        : undefined
+      let clips: FilmResult['clips']
+      if (profile.sender.clip || chosenProject?.clip) {
+        ctx.progress({ stage: 'design', label: 'Preparing your clips' })
+        clips = await ctx.step('clips', async () => {
+          const out: NonNullable<FilmResult['clips']> = {}
+          if (profile.sender.clip)
+            out.face = await prepareOneClip(
+              profile.sender.clip.url,
+              {
+                slot: 3.0,
+                size: FORMATS[format],
+                mode: 'cover',
+              },
+              dir,
+              opts.allowPrivateNetworks ?? false,
+              rel,
+            )
+          if (chosenProject?.clip)
+            out.recording = await prepareOneClip(
+              chosenProject.clip,
+              {
+                slot: 6.5,
+                size: FORMATS[format],
+                mode: 'contain',
+              },
+              dir,
+              opts.allowPrivateNetworks ?? false,
+              rel,
+            )
+          return out
+        })
+      }
+
       ctx.progress({ stage: 'design', label: `Matching ${kit.name}'s brand` })
       const composed = await ctx.step('compose', async () => {
         const theme = await buildTheme(kit, profile, {
@@ -706,6 +757,7 @@ export function createFilmAgent(opts: FilmAgentOptions) {
           ...(profile !== input.profile ? { profile } : {}),
           brand: composed.brand,
           facts: factsFor(kit, profile, script.insight.factId),
+          ...(clips ? { clips } : {}),
         }
       } finally {
         await Promise.all(pool.map((c) => c.close()))
@@ -734,6 +786,23 @@ export function factsFor(kit: BrandKit, profile: Profile, featured: string): Rev
     caption: captionFor(f, { own, ...(kit.job ? { job: kit.job.title } : {}) }),
     ...(f.source?.url && /^https:\/\/\S{4,300}$/.test(f.source.url) ? { url: f.source.url } : {}),
   }))
+}
+
+/** Runs prepareClip for one slot, turning a refusal into a recorded reason instead of a thrown error. */
+async function prepareOneClip(
+  url: string,
+  params: { slot: number; size: { width: number; height: number }; mode: 'cover' | 'contain' },
+  framesParentDir: string,
+  allowPrivateNetworks: boolean,
+  rel: (p: string) => string,
+): Promise<ClipOutcome> {
+  try {
+    const r = await prepareClip({ url, ...params, dir: framesParentDir, allowPrivateNetworks })
+    return { ...r, dir: rel(r.dir) }
+  } catch (err) {
+    if (err instanceof NonRetryableError) return { failed: err.message }
+    throw err
+  }
 }
 
 function highlightsOf(board: Storyboard): FilmResult['highlights'] {

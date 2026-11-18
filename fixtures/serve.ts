@@ -5,11 +5,12 @@ import { fileURLToPath } from 'node:url'
 
 /**
  * Serves the fixture company websites used by tests, evals and demos:
- *   /northwind/   /lumen/   /parcelpine/   /fonts/<family>/...
+ *   /northwind/   /lumen/   /parcelpine/   /fonts/<family>/...   /clips/<name>.mp4
  * They are fictional companies with real-world structure (web fonts, nav, CTAs, stats).
  */
 const SITES = join(import.meta.dirname, 'sites')
 const MODULES = join(import.meta.dirname, '..', 'node_modules', '@fontsource-variable')
+const CLIPS = join(import.meta.dirname, 'clips')
 const TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css',
@@ -17,6 +18,7 @@ const TYPES: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.mp4': 'video/mp4',
 }
 
 export function serveFixtures(port = 0): Promise<{ server: Server; url: string }> {
@@ -24,9 +26,10 @@ export function serveFixtures(port = 0): Promise<{ server: Server; url: string }
     const path = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname)
     let file: string
     if (path.startsWith('/fonts/')) file = normalize(join(MODULES, path.slice(7)))
+    else if (path.startsWith('/clips/')) file = normalize(join(CLIPS, path.slice(7)))
     else file = normalize(join(SITES, path.endsWith('/') ? `${path}index.html` : path))
     if (
-      !(file.startsWith(SITES) || file.startsWith(MODULES)) ||
+      !(file.startsWith(SITES) || file.startsWith(MODULES) || file.startsWith(CLIPS)) ||
       !existsSync(file) ||
       statSync(file).isDirectory()
     ) {
