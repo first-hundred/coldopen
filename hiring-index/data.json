@@ -1,116 +1,116 @@
 {
- "asOf": "2026-11-18",
- "snapshots": 16,
+ "asOf": "2026-11-19",
+ "snapshots": 17,
  "totals": {
   "companies": 462,
-  "open_roles": 17276,
-  "new_roles_30d": 5580,
-  "us_roles": 11326
+  "open_roles": 17283,
+  "new_roles_30d": 5531,
+  "us_roles": 11329
  },
  "families": [
   {
    "job_family": "Operations & other",
-   "open_roles": 3379,
-   "new_roles_30d": 1176,
+   "open_roles": 3373,
+   "new_roles_30d": 1177,
    "companies": 333,
-   "remote_pct": 24.6,
-   "visa_sponsor_pct": 28.5,
-   "roles_with_pay": 1485,
+   "remote_pct": 24.4,
+   "visa_sponsor_pct": 28.6,
+   "roles_with_pay": 1491,
    "pay_p25": 130000.0,
    "pay_median": 187500.0,
    "pay_p75": 240000.0
   },
   {
    "job_family": "Software Engineering",
-   "open_roles": 2946,
-   "new_roles_30d": 747,
+   "open_roles": 2942,
+   "new_roles_30d": 735,
    "companies": 335,
-   "remote_pct": 22.4,
-   "visa_sponsor_pct": 33.6,
-   "roles_with_pay": 1251,
-   "pay_p25": 197000.0,
-   "pay_median": 242000.0,
+   "remote_pct": 22.3,
+   "visa_sponsor_pct": 33.5,
+   "roles_with_pay": 1249,
+   "pay_p25": 196500.0,
+   "pay_median": 240600.0,
    "pay_p75": 300000.0
   },
   {
    "job_family": "Sales",
-   "open_roles": 1432,
-   "new_roles_30d": 519,
-   "companies": 256,
-   "remote_pct": 35.2,
-   "visa_sponsor_pct": 40.5,
-   "roles_with_pay": 486,
+   "open_roles": 1445,
+   "new_roles_30d": 518,
+   "companies": 258,
+   "remote_pct": 35.7,
+   "visa_sponsor_pct": 40.4,
+   "roles_with_pay": 490,
    "pay_p25": 130000.0,
-   "pay_median": 200100.0,
-   "pay_p75": 286875.0
+   "pay_median": 200000.0,
+   "pay_p75": 285000.0
   },
   {
    "job_family": "AI & ML",
-   "open_roles": 862,
-   "new_roles_30d": 231,
-   "companies": 187,
-   "remote_pct": 18.3,
+   "open_roles": 850,
+   "new_roles_30d": 227,
+   "companies": 188,
+   "remote_pct": 18.8,
    "visa_sponsor_pct": 30.6,
-   "roles_with_pay": 332,
-   "pay_p25": 207500.0,
-   "pay_median": 247100.0,
+   "roles_with_pay": 328,
+   "pay_p25": 205000.0,
+   "pay_median": 247500.0,
    "pay_p75": 300000.0
   },
   {
    "job_family": "Marketing",
-   "open_roles": 552,
+   "open_roles": 555,
    "new_roles_30d": 224,
-   "companies": 191,
-   "remote_pct": 22.1,
-   "visa_sponsor_pct": 30.6,
-   "roles_with_pay": 234,
-   "pay_p25": 155625.0,
+   "companies": 192,
+   "remote_pct": 21.8,
+   "visa_sponsor_pct": 31.2,
+   "roles_with_pay": 239,
+   "pay_p25": 155000.0,
    "pay_median": 180500.0,
-   "pay_p75": 221875.0
+   "pay_p75": 221250.0
   },
   {
    "job_family": "Solutions & Sales Engineering",
-   "open_roles": 389,
-   "new_roles_30d": 136,
-   "companies": 104,
-   "remote_pct": 45.0,
-   "visa_sponsor_pct": 60.4,
-   "roles_with_pay": 95,
-   "pay_p25": 182250.0,
-   "pay_median": 215000.0,
+   "open_roles": 394,
+   "new_roles_30d": 143,
+   "companies": 102,
+   "remote_pct": 45.4,
+   "visa_sponsor_pct": 62.9,
+   "roles_with_pay": 97,
+   "pay_p25": 184500.0,
+   "pay_median": 212500.0,
    "pay_p75": 247500.0
   },
   {
    "job_family": "Customer Success",
-   "open_roles": 335,
-   "new_roles_30d": 141,
-   "companies": 127,
-   "remote_pct": 35.2,
-   "visa_sponsor_pct": 34.3,
-   "roles_with_pay": 148,
+   "open_roles": 340,
+   "new_roles_30d": 146,
+   "companies": 126,
+   "remote_pct": 35.3,
+   "visa_sponsor_pct": 34.4,
+   "roles_with_pay": 154,
    "pay_p25": 125000.0,
-   "pay_median": 160000.0,
-   "pay_p75": 197600.0
+   "pay_median": 161250.0,
+   "pay_p75": 199438.0
   },
   {
    "job_family": "Product",
-   "open_roles": 335,
-   "new_roles_30d": 100,
+   "open_roles": 339,
+   "new_roles_30d": 106,
    "companies": 124,
-   "remote_pct": 30.7,
-   "visa_sponsor_pct": 39.1,
-   "roles_with_pay": 120,
-   "pay_p25": 208750.0,
+   "remote_pct": 30.1,
+   "visa_sponsor_pct": 38.3,
+   "roles_with_pay": 128,
+   "pay_p25": 205000.0,
    "pay_median": 227400.0,
-   "pay_p75": 264625.0
+   "pay_p75": 270900.0
   },
   {
    "job_family": "Forward Deployed Engineering",
-   "open_roles": 275,
+   "open_roles": 274,
    "new_roles_30d": 46,
-   "companies": 103,
+   "companies": 102,
    "remote_pct": 12.0,
-   "visa_sponsor_pct": 48.4,
+   "visa_sponsor_pct": 48.2,
    "roles_with_pay": 103,
    "pay_p25": 181250.0,
    "pay_median": 230000.0,
@@ -118,23 +118,23 @@
   },
   {
    "job_family": "Design",
-   "open_roles": 256,
-   "new_roles_30d": 82,
-   "companies": 117,
-   "remote_pct": 18.4,
+   "open_roles": 253,
+   "new_roles_30d": 78,
+   "companies": 115,
+   "remote_pct": 17.4,
    "visa_sponsor_pct": 28.1,
-   "roles_with_pay": 116,
-   "pay_p25": 192500.0,
+   "roles_with_pay": 114,
+   "pay_p25": 192875.0,
    "pay_median": 210000.0,
-   "pay_p75": 233125.0
+   "pay_p75": 231875.0
   },
   {
    "job_family": "Data",
-   "open_roles": 194,
-   "new_roles_30d": 49,
-   "companies": 85,
-   "remote_pct": 27.8,
-   "visa_sponsor_pct": 32.5,
+   "open_roles": 196,
+   "new_roles_30d": 51,
+   "companies": 86,
+   "remote_pct": 27.6,
+   "visa_sponsor_pct": 33.2,
    "roles_with_pay": 89,
    "pay_p25": 182500.0,
    "pay_median": 215000.0,
@@ -142,22 +142,22 @@
   },
   {
    "job_family": "GTM Engineering & RevOps",
-   "open_roles": 69,
-   "new_roles_30d": 28,
-   "companies": 54,
-   "remote_pct": 21.7,
-   "visa_sponsor_pct": 24.6,
-   "roles_with_pay": 34,
-   "pay_p25": 158000.0,
-   "pay_median": 180000.0,
-   "pay_p75": 203750.0
+   "open_roles": 68,
+   "new_roles_30d": 27,
+   "companies": 53,
+   "remote_pct": 22.1,
+   "visa_sponsor_pct": 23.5,
+   "roles_with_pay": 35,
+   "pay_p25": 155000.0,
+   "pay_median": 175000.0,
+   "pay_p75": 202500.0
   }
  ],
  "weekly": [
   {
    "posted_week": "2026-08-24",
    "job_family": "AI & ML",
-   "roles": 16
+   "roles": 11
   },
   {
    "posted_week": "2026-08-24",
@@ -167,7 +167,7 @@
   {
    "posted_week": "2026-08-24",
    "job_family": "Data",
-   "roles": 4
+   "roles": 2
   },
   {
    "posted_week": "2026-08-24",
@@ -177,7 +177,7 @@
   {
    "posted_week": "2026-08-24",
    "job_family": "Forward Deployed Engineering",
-   "roles": 7
+   "roles": 3
   },
   {
    "posted_week": "2026-08-24",
@@ -187,32 +187,32 @@
   {
    "posted_week": "2026-08-24",
    "job_family": "Marketing",
-   "roles": 9
-  },
-  {
-   "posted_week": "2026-08-24",
-   "job_family": "Operations & other",
-   "roles": 63
-  },
-  {
-   "posted_week": "2026-08-24",
-   "job_family": "Product",
    "roles": 7
   },
   {
    "posted_week": "2026-08-24",
+   "job_family": "Operations & other",
+   "roles": 47
+  },
+  {
+   "posted_week": "2026-08-24",
+   "job_family": "Product",
+   "roles": 3
+  },
+  {
+   "posted_week": "2026-08-24",
    "job_family": "Sales",
-   "roles": 22
+   "roles": 16
   },
   {
    "posted_week": "2026-08-24",
    "job_family": "Software Engineering",
-   "roles": 56
+   "roles": 35
   },
   {
    "posted_week": "2026-08-24",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 13
+   "roles": 7
   },
   {
    "posted_week": "2026-08-31",
@@ -222,17 +222,17 @@
   {
    "posted_week": "2026-08-31",
    "job_family": "Customer Success",
-   "roles": 12
+   "roles": 11
   },
   {
    "posted_week": "2026-08-31",
    "job_family": "Data",
-   "roles": 7
+   "roles": 6
   },
   {
    "posted_week": "2026-08-31",
    "job_family": "Design",
-   "roles": 17
+   "roles": 18
   },
   {
    "posted_week": "2026-08-31",
@@ -252,7 +252,7 @@
   {
    "posted_week": "2026-08-31",
    "job_family": "Operations & other",
-   "roles": 134
+   "roles": 128
   },
   {
    "posted_week": "2026-08-31",
@@ -267,7 +267,7 @@
   {
    "posted_week": "2026-08-31",
    "job_family": "Software Engineering",
-   "roles": 86
+   "roles": 85
   },
   {
    "posted_week": "2026-08-31",
@@ -307,17 +307,17 @@
   {
    "posted_week": "2026-09-07",
    "job_family": "Operations & other",
-   "roles": 95
+   "roles": 93
   },
   {
    "posted_week": "2026-09-07",
    "job_family": "Product",
-   "roles": 6
+   "roles": 5
   },
   {
    "posted_week": "2026-09-07",
    "job_family": "Sales",
-   "roles": 37
+   "roles": 36
   },
   {
    "posted_week": "2026-09-07",
@@ -332,7 +332,7 @@
   {
    "posted_week": "2026-09-14",
    "job_family": "AI & ML",
-   "roles": 18
+   "roles": 17
   },
   {
    "posted_week": "2026-09-14",
@@ -347,7 +347,7 @@
   {
    "posted_week": "2026-09-14",
    "job_family": "Design",
-   "roles": 7
+   "roles": 6
   },
   {
    "posted_week": "2026-09-14",
@@ -362,27 +362,27 @@
   {
    "posted_week": "2026-09-14",
    "job_family": "Marketing",
-   "roles": 24
+   "roles": 23
   },
   {
    "posted_week": "2026-09-14",
    "job_family": "Operations & other",
-   "roles": 139
+   "roles": 137
   },
   {
    "posted_week": "2026-09-14",
    "job_family": "Product",
-   "roles": 9
+   "roles": 8
   },
   {
    "posted_week": "2026-09-14",
    "job_family": "Sales",
-   "roles": 47
+   "roles": 46
   },
   {
    "posted_week": "2026-09-14",
    "job_family": "Software Engineering",
-   "roles": 142
+   "roles": 141
   },
   {
    "posted_week": "2026-09-14",
@@ -427,7 +427,7 @@
   {
    "posted_week": "2026-09-21",
    "job_family": "Operations & other",
-   "roles": 199
+   "roles": 191
   },
   {
    "posted_week": "2026-09-21",
@@ -442,7 +442,7 @@
   {
    "posted_week": "2026-09-21",
    "job_family": "Software Engineering",
-   "roles": 117
+   "roles": 116
   },
   {
    "posted_week": "2026-09-21",
@@ -482,12 +482,12 @@
   {
    "posted_week": "2026-09-28",
    "job_family": "Marketing",
-   "roles": 28
+   "roles": 27
   },
   {
    "posted_week": "2026-09-28",
    "job_family": "Operations & other",
-   "roles": 162
+   "roles": 157
   },
   {
    "posted_week": "2026-09-28",
@@ -502,7 +502,7 @@
   {
    "posted_week": "2026-09-28",
    "job_family": "Software Engineering",
-   "roles": 122
+   "roles": 123
   },
   {
    "posted_week": "2026-09-28",
@@ -547,7 +547,7 @@
   {
    "posted_week": "2026-10-05",
    "job_family": "Operations & other",
-   "roles": 198
+   "roles": 192
   },
   {
    "posted_week": "2026-10-05",
@@ -557,22 +557,22 @@
   {
    "posted_week": "2026-10-05",
    "job_family": "Sales",
-   "roles": 63
+   "roles": 61
   },
   {
    "posted_week": "2026-10-05",
    "job_family": "Software Engineering",
-   "roles": 128
+   "roles": 123
   },
   {
    "posted_week": "2026-10-05",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 17
+   "roles": 16
   },
   {
    "posted_week": "2026-10-12",
    "job_family": "AI & ML",
-   "roles": 35
+   "roles": 33
   },
   {
    "posted_week": "2026-10-12",
@@ -587,7 +587,7 @@
   {
    "posted_week": "2026-10-12",
    "job_family": "Design",
-   "roles": 11
+   "roles": 12
   },
   {
    "posted_week": "2026-10-12",
@@ -597,22 +597,22 @@
   {
    "posted_week": "2026-10-12",
    "job_family": "GTM Engineering & RevOps",
-   "roles": 5
+   "roles": 4
   },
   {
    "posted_week": "2026-10-12",
    "job_family": "Marketing",
-   "roles": 27
+   "roles": 26
   },
   {
    "posted_week": "2026-10-12",
    "job_family": "Operations & other",
-   "roles": 195
+   "roles": 193
   },
   {
    "posted_week": "2026-10-12",
    "job_family": "Product",
-   "roles": 15
+   "roles": 13
   },
   {
    "posted_week": "2026-10-12",
@@ -622,7 +622,7 @@
   {
    "posted_week": "2026-10-12",
    "job_family": "Software Engineering",
-   "roles": 135
+   "roles": 132
   },
   {
    "posted_week": "2026-10-12",
@@ -632,7 +632,7 @@
   {
    "posted_week": "2026-10-19",
    "job_family": "AI & ML",
-   "roles": 49
+   "roles": 48
   },
   {
    "posted_week": "2026-10-19",
@@ -647,7 +647,7 @@
   {
    "posted_week": "2026-10-19",
    "job_family": "Design",
-   "roles": 12
+   "roles": 10
   },
   {
    "posted_week": "2026-10-19",
@@ -662,12 +662,12 @@
   {
    "posted_week": "2026-10-19",
    "job_family": "Marketing",
-   "roles": 48
+   "roles": 46
   },
   {
    "posted_week": "2026-10-19",
    "job_family": "Operations & other",
-   "roles": 217
+   "roles": 214
   },
   {
    "posted_week": "2026-10-19",
@@ -677,7 +677,7 @@
   {
    "posted_week": "2026-10-19",
    "job_family": "Sales",
-   "roles": 107
+   "roles": 104
   },
   {
    "posted_week": "2026-10-19",
@@ -687,7 +687,7 @@
   {
    "posted_week": "2026-10-19",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 32
+   "roles": 31
   },
   {
    "posted_week": "2026-10-26",
@@ -707,7 +707,7 @@
   {
    "posted_week": "2026-10-26",
    "job_family": "Design",
-   "roles": 15
+   "roles": 14
   },
   {
    "posted_week": "2026-10-26",
@@ -727,7 +727,7 @@
   {
    "posted_week": "2026-10-26",
    "job_family": "Operations & other",
-   "roles": 219
+   "roles": 217
   },
   {
    "posted_week": "2026-10-26",
@@ -752,12 +752,12 @@
   {
    "posted_week": "2026-11-02",
    "job_family": "AI & ML",
-   "roles": 77
+   "roles": 74
   },
   {
    "posted_week": "2026-11-02",
    "job_family": "Customer Success",
-   "roles": 49
+   "roles": 48
   },
   {
    "posted_week": "2026-11-02",
@@ -772,7 +772,7 @@
   {
    "posted_week": "2026-11-02",
    "job_family": "Forward Deployed Engineering",
-   "roles": 18
+   "roles": 17
   },
   {
    "posted_week": "2026-11-02",
@@ -782,12 +782,12 @@
   {
    "posted_week": "2026-11-02",
    "job_family": "Marketing",
-   "roles": 62
+   "roles": 59
   },
   {
    "posted_week": "2026-11-02",
    "job_family": "Operations & other",
-   "roles": 269
+   "roles": 268
   },
   {
    "posted_week": "2026-11-02",
@@ -797,27 +797,27 @@
   {
    "posted_week": "2026-11-02",
    "job_family": "Sales",
-   "roles": 104
+   "roles": 102
   },
   {
    "posted_week": "2026-11-02",
    "job_family": "Software Engineering",
-   "roles": 170
+   "roles": 169
   },
   {
    "posted_week": "2026-11-02",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 29
+   "roles": 27
   },
   {
    "posted_week": "2026-11-09",
    "job_family": "AI & ML",
-   "roles": 55
+   "roles": 53
   },
   {
    "posted_week": "2026-11-09",
    "job_family": "Customer Success",
-   "roles": 32
+   "roles": 31
   },
   {
    "posted_week": "2026-11-09",
@@ -827,7 +827,7 @@
   {
    "posted_week": "2026-11-09",
    "job_family": "Design",
-   "roles": 19
+   "roles": 18
   },
   {
    "posted_week": "2026-11-09",
@@ -842,12 +842,12 @@
   {
    "posted_week": "2026-11-09",
    "job_family": "Marketing",
-   "roles": 67
+   "roles": 66
   },
   {
    "posted_week": "2026-11-09",
    "job_family": "Operations & other",
-   "roles": 340
+   "roles": 334
   },
   {
    "posted_week": "2026-11-09",
@@ -857,80 +857,100 @@
   {
    "posted_week": "2026-11-09",
    "job_family": "Sales",
-   "roles": 144
+   "roles": 143
   },
   {
    "posted_week": "2026-11-09",
    "job_family": "Software Engineering",
-   "roles": 202
+   "roles": 198
   },
   {
    "posted_week": "2026-11-09",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 27
-  },
-  {
-   "posted_week": "2026-11-16",
-   "job_family": "AI & ML",
    "roles": 25
   },
   {
    "posted_week": "2026-11-16",
+   "job_family": "AI & ML",
+   "roles": 35
+  },
+  {
+   "posted_week": "2026-11-16",
    "job_family": "Customer Success",
-   "roles": 11
+   "roles": 19
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Data",
-   "roles": 6
-  },
-  {
-   "posted_week": "2026-11-16",
-   "job_family": "Design",
    "roles": 9
   },
   {
    "posted_week": "2026-11-16",
+   "job_family": "Design",
+   "roles": 10
+  },
+  {
+   "posted_week": "2026-11-16",
    "job_family": "Forward Deployed Engineering",
-   "roles": 3
+   "roles": 4
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "GTM Engineering & RevOps",
-   "roles": 3
+   "roles": 4
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Marketing",
-   "roles": 24
+   "roles": 35
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Operations & other",
-   "roles": 152
+   "roles": 208
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Product",
-   "roles": 12
+   "roles": 21
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Sales",
-   "roles": 59
+   "roles": 82
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Software Engineering",
-   "roles": 85
+   "roles": 115
   },
   {
    "posted_week": "2026-11-16",
    "job_family": "Solutions & Sales Engineering",
-   "roles": 15
+   "roles": 31
   }
  ],
  "daily": [
+  {
+   "snapshot_date": "2026-11-03",
+   "job_family": "Software Engineering",
+   "open_roles": 2932
+  },
+  {
+   "snapshot_date": "2026-11-03",
+   "job_family": "Design",
+   "open_roles": 263
+  },
+  {
+   "snapshot_date": "2026-11-03",
+   "job_family": "Data",
+   "open_roles": 205
+  },
+  {
+   "snapshot_date": "2026-11-03",
+   "job_family": "Product",
+   "open_roles": 340
+  },
   {
    "snapshot_date": "2026-11-03",
    "job_family": "Marketing",
@@ -940,6 +960,11 @@
    "snapshot_date": "2026-11-03",
    "job_family": "Solutions & Sales Engineering",
    "open_roles": 397
+  },
+  {
+   "snapshot_date": "2026-11-03",
+   "job_family": "Customer Success",
+   "open_roles": 323
   },
   {
    "snapshot_date": "2026-11-03",
@@ -967,29 +992,14 @@
    "open_roles": 875
   },
   {
-   "snapshot_date": "2026-11-03",
-   "job_family": "Product",
-   "open_roles": 340
+   "snapshot_date": "2026-11-04",
+   "job_family": "Sales",
+   "open_roles": 1370
   },
   {
-   "snapshot_date": "2026-11-03",
-   "job_family": "Customer Success",
-   "open_roles": 323
-  },
-  {
-   "snapshot_date": "2026-11-03",
-   "job_family": "Software Engineering",
-   "open_roles": 2932
-  },
-  {
-   "snapshot_date": "2026-11-03",
-   "job_family": "Design",
-   "open_roles": 263
-  },
-  {
-   "snapshot_date": "2026-11-03",
-   "job_family": "Data",
-   "open_roles": 205
+   "snapshot_date": "2026-11-04",
+   "job_family": "Operations & other",
+   "open_roles": 3407
   },
   {
    "snapshot_date": "2026-11-04",
@@ -1003,16 +1013,6 @@
   },
   {
    "snapshot_date": "2026-11-04",
-   "job_family": "Sales",
-   "open_roles": 1370
-  },
-  {
-   "snapshot_date": "2026-11-04",
-   "job_family": "Operations & other",
-   "open_roles": 3407
-  },
-  {
-   "snapshot_date": "2026-11-04",
    "job_family": "Forward Deployed Engineering",
    "open_roles": 262
   },
@@ -1020,21 +1020,6 @@
    "snapshot_date": "2026-11-04",
    "job_family": "GTM Engineering & RevOps",
    "open_roles": 78
-  },
-  {
-   "snapshot_date": "2026-11-04",
-   "job_family": "AI & ML",
-   "open_roles": 871
-  },
-  {
-   "snapshot_date": "2026-11-04",
-   "job_family": "Product",
-   "open_roles": 346
-  },
-  {
-   "snapshot_date": "2026-11-04",
-   "job_family": "Customer Success",
-   "open_roles": 328
   },
   {
    "snapshot_date": "2026-11-04",
@@ -1052,9 +1037,24 @@
    "open_roles": 209
   },
   {
+   "snapshot_date": "2026-11-04",
+   "job_family": "AI & ML",
+   "open_roles": 871
+  },
+  {
+   "snapshot_date": "2026-11-04",
+   "job_family": "Product",
+   "open_roles": 346
+  },
+  {
+   "snapshot_date": "2026-11-04",
+   "job_family": "Customer Success",
+   "open_roles": 328
+  },
+  {
    "snapshot_date": "2026-11-05",
-   "job_family": "Data",
-   "open_roles": 207
+   "job_family": "Customer Success",
+   "open_roles": 332
   },
   {
    "snapshot_date": "2026-11-05",
@@ -1098,8 +1098,8 @@
   },
   {
    "snapshot_date": "2026-11-05",
-   "job_family": "Customer Success",
-   "open_roles": 332
+   "job_family": "Data",
+   "open_roles": 207
   },
   {
    "snapshot_date": "2026-11-05",
@@ -1113,18 +1113,13 @@
   },
   {
    "snapshot_date": "2026-11-06",
-   "job_family": "Marketing",
-   "open_roles": 540
-  },
-  {
-   "snapshot_date": "2026-11-06",
-   "job_family": "Solutions & Sales Engineering",
-   "open_roles": 395
-  },
-  {
-   "snapshot_date": "2026-11-06",
    "job_family": "Design",
    "open_roles": 267
+  },
+  {
+   "snapshot_date": "2026-11-06",
+   "job_family": "GTM Engineering & RevOps",
+   "open_roles": 75
   },
   {
    "snapshot_date": "2026-11-06",
@@ -1135,6 +1130,16 @@
    "snapshot_date": "2026-11-06",
    "job_family": "Data",
    "open_roles": 201
+  },
+  {
+   "snapshot_date": "2026-11-06",
+   "job_family": "Marketing",
+   "open_roles": 540
+  },
+  {
+   "snapshot_date": "2026-11-06",
+   "job_family": "Solutions & Sales Engineering",
+   "open_roles": 395
   },
   {
    "snapshot_date": "2026-11-06",
@@ -1167,9 +1172,14 @@
    "open_roles": 345
   },
   {
-   "snapshot_date": "2026-11-06",
-   "job_family": "GTM Engineering & RevOps",
-   "open_roles": 75
+   "snapshot_date": "2026-11-07",
+   "job_family": "Operations & other",
+   "open_roles": 3369
+  },
+  {
+   "snapshot_date": "2026-11-07",
+   "job_family": "AI & ML",
+   "open_roles": 865
   },
   {
    "snapshot_date": "2026-11-07",
@@ -1180,31 +1190,6 @@
    "snapshot_date": "2026-11-07",
    "job_family": "Solutions & Sales Engineering",
    "open_roles": 394
-  },
-  {
-   "snapshot_date": "2026-11-07",
-   "job_family": "Software Engineering",
-   "open_roles": 2961
-  },
-  {
-   "snapshot_date": "2026-11-07",
-   "job_family": "Data",
-   "open_roles": 204
-  },
-  {
-   "snapshot_date": "2026-11-07",
-   "job_family": "Design",
-   "open_roles": 269
-  },
-  {
-   "snapshot_date": "2026-11-07",
-   "job_family": "Operations & other",
-   "open_roles": 3369
-  },
-  {
-   "snapshot_date": "2026-11-07",
-   "job_family": "AI & ML",
-   "open_roles": 865
   },
   {
    "snapshot_date": "2026-11-07",
@@ -1223,6 +1208,21 @@
   },
   {
    "snapshot_date": "2026-11-07",
+   "job_family": "Software Engineering",
+   "open_roles": 2961
+  },
+  {
+   "snapshot_date": "2026-11-07",
+   "job_family": "Data",
+   "open_roles": 204
+  },
+  {
+   "snapshot_date": "2026-11-07",
+   "job_family": "Design",
+   "open_roles": 269
+  },
+  {
+   "snapshot_date": "2026-11-07",
    "job_family": "Product",
    "open_roles": 347
   },
@@ -1233,13 +1233,28 @@
   },
   {
    "snapshot_date": "2026-11-08",
-   "job_family": "Solutions & Sales Engineering",
-   "open_roles": 392
+   "job_family": "Data",
+   "open_roles": 204
   },
   {
    "snapshot_date": "2026-11-08",
    "job_family": "Marketing",
    "open_roles": 541
+  },
+  {
+   "snapshot_date": "2026-11-08",
+   "job_family": "Solutions & Sales Engineering",
+   "open_roles": 392
+  },
+  {
+   "snapshot_date": "2026-11-08",
+   "job_family": "Software Engineering",
+   "open_roles": 2965
+  },
+  {
+   "snapshot_date": "2026-11-08",
+   "job_family": "Design",
+   "open_roles": 269
   },
   {
    "snapshot_date": "2026-11-08",
@@ -1277,19 +1292,29 @@
    "open_roles": 336
   },
   {
-   "snapshot_date": "2026-11-08",
-   "job_family": "Software Engineering",
-   "open_roles": 2965
+   "snapshot_date": "2026-11-09",
+   "job_family": "Sales",
+   "open_roles": 1373
   },
   {
-   "snapshot_date": "2026-11-08",
-   "job_family": "Design",
-   "open_roles": 269
+   "snapshot_date": "2026-11-09",
+   "job_family": "AI & ML",
+   "open_roles": 864
   },
   {
-   "snapshot_date": "2026-11-08",
-   "job_family": "Data",
-   "open_roles": 204
+   "snapshot_date": "2026-11-09",
+   "job_family": "Operations & other",
+   "open_roles": 3364
+  },
+  {
+   "snapshot_date": "2026-11-09",
+   "job_family": "Customer Success",
+   "open_roles": 336
+  },
+  {
+   "snapshot_date": "2026-11-09",
+   "job_family": "Marketing",
+   "open_roles": 544
   },
   {
    "snapshot_date": "2026-11-09",
@@ -1298,8 +1323,18 @@
   },
   {
    "snapshot_date": "2026-11-09",
-   "job_family": "Marketing",
-   "open_roles": 544
+   "job_family": "Forward Deployed Engineering",
+   "open_roles": 272
+  },
+  {
+   "snapshot_date": "2026-11-09",
+   "job_family": "Product",
+   "open_roles": 347
+  },
+  {
+   "snapshot_date": "2026-11-09",
+   "job_family": "GTM Engineering & RevOps",
+   "open_roles": 74
   },
   {
    "snapshot_date": "2026-11-09",
@@ -1315,66 +1350,6 @@
    "snapshot_date": "2026-11-09",
    "job_family": "Data",
    "open_roles": 203
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "Sales",
-   "open_roles": 1373
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "GTM Engineering & RevOps",
-   "open_roles": 74
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "Product",
-   "open_roles": 347
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "Forward Deployed Engineering",
-   "open_roles": 272
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "Customer Success",
-   "open_roles": 336
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "Operations & other",
-   "open_roles": 3364
-  },
-  {
-   "snapshot_date": "2026-11-09",
-   "job_family": "AI & ML",
-   "open_roles": 864
-  },
-  {
-   "snapshot_date": "2026-11-10",
-   "job_family": "Marketing",
-   "open_roles": 565
-  },
-  {
-   "snapshot_date": "2026-11-10",
-   "job_family": "Solutions & Sales Engineering",
-   "open_roles": 393
-  },
-  {
-   "snapshot_date": "2026-11-10",
-   "job_family": "Design",
-   "open_roles": 263
-  },
-  {
-   "snapshot_date": "2026-11-10",
-   "job_family": "Software Engineering",
-   "open_roles": 2967
-  },
-  {
-   "snapshot_date": "2026-11-10",
-   "job_family": "Data",
-   "open_roles": 201
   },
   {
    "snapshot_date": "2026-11-10",
@@ -1403,6 +1378,31 @@
   },
   {
    "snapshot_date": "2026-11-10",
+   "job_family": "Design",
+   "open_roles": 263
+  },
+  {
+   "snapshot_date": "2026-11-10",
+   "job_family": "Software Engineering",
+   "open_roles": 2967
+  },
+  {
+   "snapshot_date": "2026-11-10",
+   "job_family": "Data",
+   "open_roles": 201
+  },
+  {
+   "snapshot_date": "2026-11-10",
+   "job_family": "Marketing",
+   "open_roles": 565
+  },
+  {
+   "snapshot_date": "2026-11-10",
+   "job_family": "Solutions & Sales Engineering",
+   "open_roles": 393
+  },
+  {
+   "snapshot_date": "2026-11-10",
    "job_family": "Product",
    "open_roles": 343
   },
@@ -1413,13 +1413,43 @@
   },
   {
    "snapshot_date": "2026-11-11",
-   "job_family": "Marketing",
-   "open_roles": 562
+   "job_family": "Sales",
+   "open_roles": 1387
   },
   {
    "snapshot_date": "2026-11-11",
    "job_family": "Solutions & Sales Engineering",
    "open_roles": 397
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "Marketing",
+   "open_roles": 562
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "Customer Success",
+   "open_roles": 341
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "Operations & other",
+   "open_roles": 3372
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "Forward Deployed Engineering",
+   "open_roles": 273
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "GTM Engineering & RevOps",
+   "open_roles": 74
+  },
+  {
+   "snapshot_date": "2026-11-11",
+   "job_family": "AI & ML",
+   "open_roles": 868
   },
   {
    "snapshot_date": "2026-11-11",
@@ -1438,48 +1468,8 @@
   },
   {
    "snapshot_date": "2026-11-11",
-   "job_family": "Sales",
-   "open_roles": 1387
-  },
-  {
-   "snapshot_date": "2026-11-11",
-   "job_family": "Operations & other",
-   "open_roles": 3372
-  },
-  {
-   "snapshot_date": "2026-11-11",
    "job_family": "Product",
    "open_roles": 342
-  },
-  {
-   "snapshot_date": "2026-11-11",
-   "job_family": "AI & ML",
-   "open_roles": 868
-  },
-  {
-   "snapshot_date": "2026-11-11",
-   "job_family": "GTM Engineering & RevOps",
-   "open_roles": 74
-  },
-  {
-   "snapshot_date": "2026-11-11",
-   "job_family": "Forward Deployed Engineering",
-   "open_roles": 273
-  },
-  {
-   "snapshot_date": "2026-11-11",
-   "job_family": "Customer Success",
-   "open_roles": 341
-  },
-  {
-   "snapshot_date": "2026-11-12",
-   "job_family": "Marketing",
-   "open_roles": 558
-  },
-  {
-   "snapshot_date": "2026-11-12",
-   "job_family": "Solutions & Sales Engineering",
-   "open_roles": 394
   },
   {
    "snapshot_date": "2026-11-12",
@@ -1488,8 +1478,23 @@
   },
   {
    "snapshot_date": "2026-11-12",
+   "job_family": "Software Engineering",
+   "open_roles": 2979
+  },
+  {
+   "snapshot_date": "2026-11-12",
    "job_family": "Customer Success",
    "open_roles": 339
+  },
+  {
+   "snapshot_date": "2026-11-12",
+   "job_family": "Design",
+   "open_roles": 263
+  },
+  {
+   "snapshot_date": "2026-11-12",
+   "job_family": "Data",
+   "open_roles": 199
   },
   {
    "snapshot_date": "2026-11-12",
@@ -1508,6 +1513,16 @@
   },
   {
    "snapshot_date": "2026-11-12",
+   "job_family": "Solutions & Sales Engineering",
+   "open_roles": 394
+  },
+  {
+   "snapshot_date": "2026-11-12",
+   "job_family": "Marketing",
+   "open_roles": 558
+  },
+  {
+   "snapshot_date": "2026-11-12",
    "job_family": "AI & ML",
    "open_roles": 870
   },
@@ -1517,19 +1532,9 @@
    "open_roles": 344
   },
   {
-   "snapshot_date": "2026-11-12",
-   "job_family": "Software Engineering",
-   "open_roles": 2979
-  },
-  {
-   "snapshot_date": "2026-11-12",
+   "snapshot_date": "2026-11-13",
    "job_family": "Design",
-   "open_roles": 263
-  },
-  {
-   "snapshot_date": "2026-11-12",
-   "job_family": "Data",
-   "open_roles": 199
+   "open_roles": 265
   },
   {
    "snapshot_date": "2026-11-13",
@@ -1538,48 +1543,8 @@
   },
   {
    "snapshot_date": "2026-11-13",
-   "job_family": "Sales",
-   "open_roles": 1408
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "GTM Engineering & RevOps",
-   "open_roles": 74
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "Product",
-   "open_roles": 341
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "Forward Deployed Engineering",
-   "open_roles": 274
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "AI & ML",
-   "open_roles": 867
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "Operations & other",
-   "open_roles": 3388
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "Customer Success",
-   "open_roles": 349
-  },
-  {
-   "snapshot_date": "2026-11-13",
    "job_family": "Data",
    "open_roles": 199
-  },
-  {
-   "snapshot_date": "2026-11-13",
-   "job_family": "Design",
-   "open_roles": 265
   },
   {
    "snapshot_date": "2026-11-13",
@@ -1588,28 +1553,43 @@
   },
   {
    "snapshot_date": "2026-11-13",
+   "job_family": "Sales",
+   "open_roles": 1408
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "Customer Success",
+   "open_roles": 349
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "Operations & other",
+   "open_roles": 3388
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "AI & ML",
+   "open_roles": 867
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "Forward Deployed Engineering",
+   "open_roles": 274
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "Product",
+   "open_roles": 341
+  },
+  {
+   "snapshot_date": "2026-11-13",
+   "job_family": "GTM Engineering & RevOps",
+   "open_roles": 74
+  },
+  {
+   "snapshot_date": "2026-11-13",
    "job_family": "Marketing",
    "open_roles": 553
-  },
-  {
-   "snapshot_date": "2026-11-14",
-   "job_family": "Software Engineering",
-   "open_roles": 2898
-  },
-  {
-   "snapshot_date": "2026-11-14",
-   "job_family": "Design",
-   "open_roles": 255
-  },
-  {
-   "snapshot_date": "2026-11-14",
-   "job_family": "Data",
-   "open_roles": 200
-  },
-  {
-   "snapshot_date": "2026-11-14",
-   "job_family": "Sales",
-   "open_roles": 1417
   },
   {
    "snapshot_date": "2026-11-14",
@@ -1648,8 +1628,33 @@
   },
   {
    "snapshot_date": "2026-11-14",
+   "job_family": "Software Engineering",
+   "open_roles": 2898
+  },
+  {
+   "snapshot_date": "2026-11-14",
+   "job_family": "Design",
+   "open_roles": 255
+  },
+  {
+   "snapshot_date": "2026-11-14",
+   "job_family": "Data",
+   "open_roles": 200
+  },
+  {
+   "snapshot_date": "2026-11-14",
    "job_family": "Marketing",
    "open_roles": 556
+  },
+  {
+   "snapshot_date": "2026-11-14",
+   "job_family": "Sales",
+   "open_roles": 1417
+  },
+  {
+   "snapshot_date": "2026-11-15",
+   "job_family": "Operations & other",
+   "open_roles": 3410
   },
   {
    "snapshot_date": "2026-11-15",
@@ -1663,21 +1668,6 @@
   },
   {
    "snapshot_date": "2026-11-15",
-   "job_family": "Sales",
-   "open_roles": 1419
-  },
-  {
-   "snapshot_date": "2026-11-15",
-   "job_family": "Customer Success",
-   "open_roles": 348
-  },
-  {
-   "snapshot_date": "2026-11-15",
-   "job_family": "Operations & other",
-   "open_roles": 3410
-  },
-  {
-   "snapshot_date": "2026-11-15",
    "job_family": "Forward Deployed Engineering",
    "open_roles": 266
   },
@@ -1688,13 +1678,18 @@
   },
   {
    "snapshot_date": "2026-11-15",
-   "job_family": "AI & ML",
-   "open_roles": 863
+   "job_family": "Sales",
+   "open_roles": 1419
   },
   {
    "snapshot_date": "2026-11-15",
-   "job_family": "Product",
-   "open_roles": 337
+   "job_family": "Customer Success",
+   "open_roles": 348
+  },
+  {
+   "snapshot_date": "2026-11-15",
+   "job_family": "Software Engineering",
+   "open_roles": 2968
   },
   {
    "snapshot_date": "2026-11-15",
@@ -1708,8 +1703,13 @@
   },
   {
    "snapshot_date": "2026-11-15",
-   "job_family": "Software Engineering",
-   "open_roles": 2968
+   "job_family": "AI & ML",
+   "open_roles": 863
+  },
+  {
+   "snapshot_date": "2026-11-15",
+   "job_family": "Product",
+   "open_roles": 337
   },
   {
    "snapshot_date": "2026-11-16",
@@ -1720,21 +1720,6 @@
    "snapshot_date": "2026-11-16",
    "job_family": "Marketing",
    "open_roles": 554
-  },
-  {
-   "snapshot_date": "2026-11-16",
-   "job_family": "Software Engineering",
-   "open_roles": 2965
-  },
-  {
-   "snapshot_date": "2026-11-16",
-   "job_family": "Design",
-   "open_roles": 256
-  },
-  {
-   "snapshot_date": "2026-11-16",
-   "job_family": "Data",
-   "open_roles": 197
   },
   {
    "snapshot_date": "2026-11-16",
@@ -1768,8 +1753,33 @@
   },
   {
    "snapshot_date": "2026-11-16",
+   "job_family": "Software Engineering",
+   "open_roles": 2965
+  },
+  {
+   "snapshot_date": "2026-11-16",
+   "job_family": "Design",
+   "open_roles": 256
+  },
+  {
+   "snapshot_date": "2026-11-16",
+   "job_family": "Data",
+   "open_roles": 197
+  },
+  {
+   "snapshot_date": "2026-11-16",
    "job_family": "Product",
    "open_roles": 337
+  },
+  {
+   "snapshot_date": "2026-11-17",
+   "job_family": "Customer Success",
+   "open_roles": 341
+  },
+  {
+   "snapshot_date": "2026-11-17",
+   "job_family": "Data",
+   "open_roles": 196
   },
   {
    "snapshot_date": "2026-11-17",
@@ -1780,31 +1790,6 @@
    "snapshot_date": "2026-11-17",
    "job_family": "Marketing",
    "open_roles": 551
-  },
-  {
-   "snapshot_date": "2026-11-17",
-   "job_family": "Software Engineering",
-   "open_roles": 2951
-  },
-  {
-   "snapshot_date": "2026-11-17",
-   "job_family": "Design",
-   "open_roles": 257
-  },
-  {
-   "snapshot_date": "2026-11-17",
-   "job_family": "Data",
-   "open_roles": 196
-  },
-  {
-   "snapshot_date": "2026-11-17",
-   "job_family": "Sales",
-   "open_roles": 1421
-  },
-  {
-   "snapshot_date": "2026-11-17",
-   "job_family": "Customer Success",
-   "open_roles": 341
   },
   {
    "snapshot_date": "2026-11-17",
@@ -1832,14 +1817,24 @@
    "open_roles": 335
   },
   {
-   "snapshot_date": "2026-11-18",
+   "snapshot_date": "2026-11-17",
    "job_family": "Software Engineering",
-   "open_roles": 2946
+   "open_roles": 2951
+  },
+  {
+   "snapshot_date": "2026-11-17",
+   "job_family": "Design",
+   "open_roles": 257
+  },
+  {
+   "snapshot_date": "2026-11-17",
+   "job_family": "Sales",
+   "open_roles": 1421
   },
   {
    "snapshot_date": "2026-11-18",
-   "job_family": "Design",
-   "open_roles": 256
+   "job_family": "Product",
+   "open_roles": 335
   },
   {
    "snapshot_date": "2026-11-18",
@@ -1848,8 +1843,28 @@
   },
   {
    "snapshot_date": "2026-11-18",
+   "job_family": "Solutions & Sales Engineering",
+   "open_roles": 389
+  },
+  {
+   "snapshot_date": "2026-11-18",
+   "job_family": "Marketing",
+   "open_roles": 552
+  },
+  {
+   "snapshot_date": "2026-11-18",
    "job_family": "Sales",
    "open_roles": 1432
+  },
+  {
+   "snapshot_date": "2026-11-18",
+   "job_family": "Software Engineering",
+   "open_roles": 2946
+  },
+  {
+   "snapshot_date": "2026-11-18",
+   "job_family": "Design",
+   "open_roles": 256
   },
   {
    "snapshot_date": "2026-11-18",
@@ -1877,19 +1892,64 @@
    "open_roles": 862
   },
   {
-   "snapshot_date": "2026-11-18",
-   "job_family": "Product",
-   "open_roles": 335
+   "snapshot_date": "2026-11-19",
+   "job_family": "Data",
+   "open_roles": 196
   },
   {
-   "snapshot_date": "2026-11-18",
+   "snapshot_date": "2026-11-19",
    "job_family": "Solutions & Sales Engineering",
-   "open_roles": 389
+   "open_roles": 394
   },
   {
-   "snapshot_date": "2026-11-18",
+   "snapshot_date": "2026-11-19",
    "job_family": "Marketing",
-   "open_roles": 552
+   "open_roles": 555
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Software Engineering",
+   "open_roles": 2942
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Design",
+   "open_roles": 253
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Sales",
+   "open_roles": 1445
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Customer Success",
+   "open_roles": 340
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Operations & other",
+   "open_roles": 3373
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Forward Deployed Engineering",
+   "open_roles": 274
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "AI & ML",
+   "open_roles": 850
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "Product",
+   "open_roles": 339
+  },
+  {
+   "snapshot_date": "2026-11-19",
+   "job_family": "GTM Engineering & RevOps",
+   "open_roles": 68
   }
  ],
  "fastest": [
@@ -1897,85 +1957,85 @@
    "company": "OpenAI",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 836,
-   "new_roles_30d": 269
+   "open_roles": 833,
+   "new_roles_30d": 265
   },
   {
    "company": "Stripe",
    "yc_batch": "S09",
    "visa_sponsor": true,
-   "open_roles": 789,
-   "new_roles_30d": 264
+   "open_roles": 781,
+   "new_roles_30d": 258
   },
   {
    "company": "Databricks",
    "yc_batch": null,
    "visa_sponsor": true,
-   "open_roles": 896,
-   "new_roles_30d": 178
-  },
-  {
-   "company": "Anthropic",
-   "yc_batch": null,
-   "visa_sponsor": false,
-   "open_roles": 658,
-   "new_roles_30d": 178
-  },
-  {
-   "company": "Samsara",
-   "yc_batch": null,
-   "visa_sponsor": true,
-   "open_roles": 313,
-   "new_roles_30d": 168
+   "open_roles": 908,
+   "new_roles_30d": 190
   },
   {
    "company": "Harvey",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 383,
-   "new_roles_30d": 158
+   "open_roles": 393,
+   "new_roles_30d": 169
+  },
+  {
+   "company": "Samsara",
+   "yc_batch": null,
+   "visa_sponsor": true,
+   "open_roles": 310,
+   "new_roles_30d": 168
+  },
+  {
+   "company": "Anthropic",
+   "yc_batch": null,
+   "visa_sponsor": false,
+   "open_roles": 638,
+   "new_roles_30d": 167
   },
   {
    "company": "Cloudflare",
    "yc_batch": null,
    "visa_sponsor": true,
-   "open_roles": 490,
-   "new_roles_30d": 155
+   "open_roles": 498,
+   "new_roles_30d": 161
   },
   {
    "company": "Elastic",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 374,
-   "new_roles_30d": 149
+   "open_roles": 373,
+   "new_roles_30d": 145
   },
   {
    "company": "MongoDB",
    "yc_batch": null,
    "visa_sponsor": true,
-   "open_roles": 396,
-   "new_roles_30d": 134
-  },
-  {
-   "company": "GitLab",
-   "yc_batch": null,
-   "visa_sponsor": false,
-   "open_roles": 250,
-   "new_roles_30d": 115
+   "open_roles": 405,
+   "new_roles_30d": 143
   },
   {
    "company": "Okta",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 358,
-   "new_roles_30d": 112
+   "open_roles": 365,
+   "new_roles_30d": 119
+  },
+  {
+   "company": "GitLab",
+   "yc_batch": null,
+   "visa_sponsor": false,
+   "open_roles": 248,
+   "new_roles_30d": 114
   },
   {
    "company": "Legora",
    "yc_batch": "W24",
    "visa_sponsor": false,
-   "open_roles": 340,
-   "new_roles_30d": 109
+   "open_roles": 344,
+   "new_roles_30d": 112
   },
   {
    "company": "Affirm",
@@ -1988,28 +2048,28 @@
    "company": "Fivetran",
    "yc_batch": null,
    "visa_sponsor": true,
-   "open_roles": 186,
-   "new_roles_30d": 92
+   "open_roles": 188,
+   "new_roles_30d": 96
   },
   {
    "company": "Finni Health",
    "yc_batch": "W23",
    "visa_sponsor": false,
-   "open_roles": 136,
-   "new_roles_30d": 88
+   "open_roles": 139,
+   "new_roles_30d": 91
   },
   {
    "company": "Cursor",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 94,
-   "new_roles_30d": 83
+   "open_roles": 92,
+   "new_roles_30d": 82
   },
   {
    "company": "Brex",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 266,
+   "open_roles": 260,
    "new_roles_30d": 81
   },
   {
@@ -2023,49 +2083,49 @@
    "company": "Datadog",
    "yc_batch": null,
    "visa_sponsor": true,
-   "open_roles": 381,
-   "new_roles_30d": 79
-  },
-  {
-   "company": "Grafana Labs",
-   "yc_batch": null,
-   "visa_sponsor": false,
-   "open_roles": 137,
-   "new_roles_30d": 72
+   "open_roles": 379,
+   "new_roles_30d": 74
   },
   {
    "company": "Ramp",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 181,
-   "new_roles_30d": 68
+   "open_roles": 182,
+   "new_roles_30d": 67
   },
   {
    "company": "Robinhood",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 166,
-   "new_roles_30d": 65
+   "open_roles": 165,
+   "new_roles_30d": 66
   },
   {
-   "company": "Notion",
+   "company": "Grafana Labs",
    "yc_batch": null,
-   "visa_sponsor": true,
-   "open_roles": 167,
-   "new_roles_30d": 64
+   "visa_sponsor": false,
+   "open_roles": 135,
+   "new_roles_30d": 66
   },
   {
    "company": "Zip",
    "yc_batch": "S20",
    "visa_sponsor": false,
    "open_roles": 103,
-   "new_roles_30d": 61
+   "new_roles_30d": 64
+  },
+  {
+   "company": "Notion",
+   "yc_batch": null,
+   "visa_sponsor": true,
+   "open_roles": 168,
+   "new_roles_30d": 62
   },
   {
    "company": "ElevenLabs",
    "yc_batch": null,
    "visa_sponsor": false,
-   "open_roles": 127,
+   "open_roles": 128,
    "new_roles_30d": 60
   }
  ]
