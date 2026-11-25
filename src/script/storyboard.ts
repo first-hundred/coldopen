@@ -155,7 +155,12 @@ export function asked(line: string): string {
  * Deterministic assembly. The model's lines go where they belong, and everything factual
  * comes straight from its source: the quote from the site, the proof from the profile.
  */
-export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script): Storyboard {
+export function buildStoryboard(
+  kit: BrandKit,
+  profile: Profile,
+  script: Script,
+  opening?: string,
+): Storyboard {
   const fact = kit.facts.find((f) => f.id === script.insight.factId) ?? kit.facts[0]!
   // a requirement is their words, shown as a quote even when it has a number in it
   const stat = fact.kind === 'requirement' ? null : splitStat(fact.text)
@@ -168,8 +173,8 @@ export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script)
   const scenes: Scene[] = [
     {
       kind: 'hook',
-      dur: 3.2,
-      text: script.hook.replace(/[.,]$/, ''),
+      dur: opening === undefined ? 3.2 : 5.2,
+      text: opening ?? script.hook.replace(/[.,]$/, ''),
       sub: hiring
         ? kit.job
           ? `Now hiring: ${kit.job.title}`
@@ -187,7 +192,7 @@ export function buildStoryboard(kit: BrandKit, profile: Profile, script: Script)
       const focus = noticedFact(kit, script.noticed)
       return {
         kind: 'site' as const,
-        dur: 5.2,
+        dur: opening === undefined ? 5.2 : 3.2,
         caption: script.noticed.replace(/\.$/, ''),
         host: kit.host,
         ...(focus ? { focus: focus.id } : {}),

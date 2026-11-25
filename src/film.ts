@@ -45,7 +45,28 @@ import { publish, type ShareConfig } from './share/client.ts'
 import { viewFromRun } from './share/page.ts'
 import type { SlackClient } from './slack.ts'
 
+/** Approved on-screen opening: validate before trimming so controls cannot disappear. */
+export const OpeningSchema = z
+  .string()
+  .refine(
+    (text) =>
+      !Array.from(text).some((char) => {
+        const code = char.charCodeAt(0)
+        return code < 32 || (code >= 127 && code <= 159)
+      }),
+    'opening must not contain control characters',
+  )
+  .transform((text) => text.trim())
+  .pipe(
+    z
+      .string()
+      .min(1)
+      .max(96)
+      .refine((text) => text.split(/\s+/).length <= 12, 'opening must have at most 12 words'),
+  )
+
 export const FilmInputSchema = z.object({
+  opening: OpeningSchema.optional(),
   url: z.string().url(),
   profile: ProfileSchema,
   format: z.enum(['square', 'landscape', 'portrait']).default('square'),
@@ -399,6 +420,7 @@ export function createFilmAgent(opts: FilmAgentOptions) {
         kit,
         profile,
         picked?.length ? { ...script, proof: picked } : script,
+        input.opening,
       )
       const storyboardFile = join(dir, 'storyboard.json')
       const highlights = highlightsOf(board)

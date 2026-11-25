@@ -1611,3 +1611,63 @@ describe('warm leads', () => {
     expect((await done(cold, { kind: 'stayInTouch' })).statusCode).toBe(409)
   })
 })
+
+describe('personalized films', () => {
+  it('requires auth and a bounded opening, then retains it with normal idempotency', async () => {
+    const payload = {
+      url: 'https://personalized.example',
+      profile: profile('sales'),
+      opening: 'Hello Alex.',
+    }
+    expect(
+      (await app.inject({ method: 'POST', url: '/v1/films/personalized', payload })).statusCode,
+    ).toBe(401)
+    for (const opening of [
+      undefined,
+      '',
+      'x'.repeat(97),
+      Array(13).fill('a').join(' '),
+      'Hi\nAlex',
+    ]) {
+      expect(
+        (
+          await app.inject({
+            method: 'POST',
+            url: '/v1/films/personalized',
+            headers: auth,
+            payload: { ...payload, opening },
+          })
+        ).statusCode,
+      ).toBe(400)
+    }
+    const headers = { ...auth, 'idempotency-key': 'personalized-test' }
+    const first = await app.inject({
+      method: 'POST',
+      url: '/v1/films/personalized',
+      headers,
+      payload,
+    })
+    expect(first.statusCode).toBe(202)
+    expect(first.json().opening).toBe('Hello Alex.')
+    const again = await app.inject({
+      method: 'POST',
+      url: '/v1/films/personalized',
+      headers,
+      payload,
+    })
+    expect(again.statusCode).toBe(200)
+    expect(again.json().id).toBe(first.json().id)
+    const [row] = await sql`select input from runs where id = ${first.json().id}`
+    expect(row!.input.opening).toBe('Hello Alex.')
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/v1/films/personalized',
+          headers,
+          payload: { ...payload, opening: 'Hello Sam.' },
+        })
+      ).statusCode,
+    ).toBe(409)
+  })
+})

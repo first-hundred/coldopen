@@ -868,3 +868,19 @@ describe("a job seeker's line under the quoted fact: its subject, and where they
     expect(checkScript(again, returns, seeker).join('\n')).toMatch(/repeats pitch.points\[0\]/)
   })
 })
+
+describe('personalized opening storyboard', () => {
+  it('shows the approved text verbatim and keeps total duration', () => {
+    const board = buildStoryboard(kit, profile('sales'), good, 'A better first impression, Alex.')
+    expect(board.scenes[0]).toMatchObject({
+      kind: 'hook',
+      text: 'A better first impression, Alex.',
+      dur: 5.2,
+    })
+    expect(board.scenes[1]).toMatchObject({ kind: 'site', dur: 3.2 })
+    expect(board.duration).toBe(29.2)
+    const normal = buildStoryboard(kit, profile('sales'), good)
+    expect(normal.scenes[0]).toMatchObject({ text: 'Hi Northwind Freight team', dur: 3.2 })
+    expect(normal.scenes[1]!.dur).toBe(5.2)
+  })
+})

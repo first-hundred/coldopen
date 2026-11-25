@@ -23,7 +23,7 @@ import {
 } from '../autopilot/settings.ts'
 import type { Config } from '../config.ts'
 import type { Sql } from '../db/index.ts'
-import { FilmInputSchema, type FilmResult } from '../film.ts'
+import { FilmInputSchema, type FilmResult, OpeningSchema } from '../film.ts'
 import { newId } from '../ids.ts'
 import { fitOf } from '../job/fit.ts'
 import { semanticNow } from '../job/semantic.ts'
@@ -225,6 +225,7 @@ function filmDto(r: FilmRow, publicUrl: string, views?: ViewSummary, viewsLoaded
     format: r.input.format,
     batch: r.input.batch ?? null,
     ref: r.input.ref ?? null,
+    ...(r.input.opening !== undefined ? { opening: r.input.opening } : {}),
     sender: r.input.profile.sender.name,
     /** Pitch a role: a recruiter's film for one candidate */
     pitch:
@@ -1503,51 +1504,53 @@ export async function buildApi({
       .optional(),
   })
 
-  app.post(
-    '/v1/films',
-    {
-      schema: {
-        tags: ['films'],
-        summary: 'Make a film for one company',
-        description:
-          "Queues research, script, render and encode. Poll GET /v1/films/:id for progress. Send an Idempotency-Key header to make retries safe. Add `job` (a job post URL or its pasted text) and the film quotes one of its requirements and answers it with the sender's proof. LinkedIn, Indeed and Glassdoor posts need a login: send the company's website as `url` and the post as `job: { url, text }`, or the film is refused with 422 `job_needs_text` or `job_needs_site`.",
-        body: FilmBody,
+  for (const personalized of [false, true]) {
+    app.post(
+      personalized ? '/v1/films/personalized' : '/v1/films',
+      {
+        schema: {
+          tags: ['films'],
+          summary: 'Make a film for one company',
+          description:
+            "Queues research, script, render and encode. Poll GET /v1/films/:id for progress. Send an Idempotency-Key header to make retries safe. Add `job` (a job post URL or its pasted text) and the film quotes one of its requirements and answers it with the sender's proof. LinkedIn, Indeed and Glassdoor posts need a login: send the company's website as `url` and the post as `job: { url, text }`, or the film is refused with 422 `job_needs_text` or `job_needs_site`.",
+          body: personalized ? FilmBody.extend({ opening: OpeningSchema }) : FilmBody,
+        },
       },
-    },
-    async (req, reply) => {
-      // a LinkedIn (or other login-walled) post would only fail in the worker: ask now
-      const walled = pastedTextProblem(req.body)
-      if (walled) return reply.status(422).send({ error: walled })
-      const profile = await resolveProfile(req.body, req.owner, maker(req))
-      const input = FilmInputSchema.parse({
-        ...req.body,
-        url: normalizeUrl(req.body.url),
-        profile,
-        ...keep(req),
-      })
-      const key = req.headers['idempotency-key']
-      const quota = unlimited(req) ? null : await takeFilms(req, 1)
-      if (quota) return limited(reply, quota)
-      const r = await createRun(sql, {
-        agent: 'film',
-        input,
-        idempotencyKey: typeof key === 'string' ? key : undefined,
-        owner: req.owner,
-      })
-      if (r.kind === 'created') kick()
-      if (r.kind === 'conflict') {
-        return reply.status(409).send({
-          error: {
-            code: 'idempotency_conflict',
-            message: 'that Idempotency-Key was used for a different film',
-          },
+      async (req, reply) => {
+        // a LinkedIn (or other login-walled) post would only fail in the worker: ask now
+        const walled = pastedTextProblem(req.body)
+        if (walled) return reply.status(422).send({ error: walled })
+        const profile = await resolveProfile(req.body, req.owner, maker(req))
+        const input = FilmInputSchema.parse({
+          ...req.body,
+          url: normalizeUrl(req.body.url),
+          profile,
+          ...keep(req),
         })
-      }
-      return reply
-        .status(r.kind === 'created' ? 202 : 200)
-        .send(filmDto(r.run as FilmRow, publicUrl))
-    },
-  )
+        const key = req.headers['idempotency-key']
+        const quota = unlimited(req) ? null : await takeFilms(req, 1)
+        if (quota) return limited(reply, quota)
+        const r = await createRun(sql, {
+          agent: 'film',
+          input,
+          idempotencyKey: typeof key === 'string' ? key : undefined,
+          owner: req.owner,
+        })
+        if (r.kind === 'created') kick()
+        if (r.kind === 'conflict') {
+          return reply.status(409).send({
+            error: {
+              code: 'idempotency_conflict',
+              message: 'that Idempotency-Key was used for a different film',
+            },
+          })
+        }
+        return reply
+          .status(r.kind === 'created' ? 202 : 200)
+          .send(filmDto(r.run as FilmRow, publicUrl))
+      },
+    )
+  }
 
   app.post(
     '/v1/batches',
@@ -1868,6 +1871,7 @@ export async function buildApi({
       const { proof: _picked, ...rest } = run.input
       const input = FilmInputSchema.parse({
         ...rest,
+        ...(req.body.hook !== undefined ? { opening: undefined } : {}),
         script,
         editOf: root,
         ...(fact ? { fact: { id: fact.id, text: fact.text } } : {}),

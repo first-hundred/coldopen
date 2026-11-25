@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { closeBrowser } from '../../src/browser.ts'
@@ -83,6 +83,24 @@ describe('film pipeline (no database)', () => {
     )
     expect(again.files).toEqual(r.files)
   })
+
+  it('renders the approved opening as the first scene of an actual film', async () => {
+    const { url } = await fixtureServer()
+    const filmsDir = tmp('films-approved-')
+    const agent = createFilmAgent({ filmsDir, llmModel: null, allowPrivateNetworks: true })
+    const opening = 'Hi Riley. I saw your new release process.'
+    const runId = 'run_approved'
+    const result = await agent.run(new LocalContext({ runId }), {
+      url: `${url}/northwind/`,
+      profile: profile('sales'),
+      format: 'square',
+      opening,
+    })
+    const storyboard = JSON.parse(readFileSync(join(filmsDir, runId, 'storyboard.json'), 'utf8'))
+    expect(storyboard.board.scenes[0]).toMatchObject({ kind: 'hook', text: opening })
+    expect(statSync(join(filmsDir, result.files.film)).size).toBeGreaterThan(0)
+    expect(result.qa.issues).toEqual([])
+  }, 120_000)
 
   it('stops with a clear, non-retryable error when a site cannot be read', async () => {
     const { url } = await fixtureServer()
